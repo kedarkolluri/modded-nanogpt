@@ -200,3 +200,28 @@ its MXFP8 check uses nearest rounding to avoid stochastic RNG sequence changes.
 Compiled results and correctness evidence: [compiled comparison](results/compile/REPORT.md).
 `spark/run_compiled_nsys.sh` captures warmed-up Systems traces of both fused
 compiled paths using a fresh `RUN_DIR`.
+
+## TorchAO MXFP8 comparison
+
+`--precision torchao-mxfp8 --tail-precision mxfp8 --compile` selects TorchAO's
+native MXFP8 linear primitive. `spark/torchao_backend.py` casts its operands to
+BF16 while retaining the existing FP32 master parameters and optimizer. TorchAO
+implements all quantization and GEMMs; the adapter selects AUTO kernels, RCEIL
+scales, and MXFP8 weight gradients. This differs from our stochastic-backward
+recipe, so compare throughput separately from convergence claims.
+
+On Spark, TorchAO 0.18.0 is isolated in `.venv-torchao`. Its Python-only ARM wheel
+needs the CUDA extension built from the matching `v0.18.0` source checkout:
+
+```sh
+$PY spark/build_torchao_mxfp8.py upstream/torchao --metadata results/torchao/build.json
+$PY spark/check_torchao.py
+PYTHON=$PY RUN_DIR=results/new-torchao-comparison spark/run_torchao_comparison.sh
+```
+
+Here `$PY` is the isolated environment's Python. The comparison runs compiled
+BF16, our fused compiled MXFP8, and TorchAO with ordinary/generic fused
+activations, twice in reversed order, using identical 100-step settings.
+
+Measured TorchAO results, native-kernel verification and installation details:
+[TorchAO comparison](results/torchao/REPORT.md).

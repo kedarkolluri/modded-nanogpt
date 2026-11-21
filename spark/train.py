@@ -27,7 +27,7 @@ def tokens(path):
 def main():
     run_started = time.perf_counter()
     p = argparse.ArgumentParser()
-    p.add_argument('--precision', choices=['bf16', 'fp4-reference-sr', 'fp4-reference-nearest', 'fp4-native-sr', 'fp4-native-nearest', 'mxfp8-native-sr', 'mxfp8-native-nearest'], default='bf16')
+    p.add_argument('--precision', choices=['bf16', 'fp4-reference-sr', 'fp4-reference-nearest', 'fp4-native-sr', 'fp4-native-nearest', 'mxfp8-native-sr', 'mxfp8-native-nearest', 'torchao-mxfp8'], default='bf16')
     p.add_argument('--fuse-activation', action='store_true')
     p.add_argument('--compile', action='store_true', help='Compile model forward and backward with Inductor')
     p.add_argument('--compile-mode', choices=['default', 'max-autotune-no-cudagraphs'], default='default')
@@ -54,7 +54,7 @@ def main():
         p.error('batch*sequence and width must be divisible by 32')
     if (args.profile_dir or args.nsight) and (args.profile_start < 5 or args.profile_steps < 1 or args.profile_start + args.profile_steps > args.steps):
         p.error('Profile must begin after warmup and finish within the run')
-    if args.fuse_activation and not (args.precision == 'bf16' or
+    if args.fuse_activation and not (args.precision in ('bf16', 'torchao-mxfp8') or
             (args.precision.startswith('mxfp8-native') and args.pack_backend != 'eager')):
         p.error('Activation fusion supports BF16 or native MXFP8 with Triton packing')
     if args.nsight and args.profile_dir:
@@ -69,7 +69,10 @@ def main():
     if len(train) < count * args.steps + 1 or len(val) < count * args.eval_batches + 1:
         p.error('Not enough tokens for this run')
     model = GPT(GPTConfig(n_layer=args.layers, n_embd=args.width, n_head=args.heads)).cuda()
-    if args.precision.startswith(('fp4-native', 'mxfp8-native')):
+    if args.precision == 'torchao-mxfp8':
+        from torchao_backend import replace_mlps as replace_torchao
+        replace_torchao(model, args.tail_precision, args.fuse_activation)
+    elif args.precision.startswith(('fp4-native', 'mxfp8-native')):
         from native import replace_mlps as replace_native, set_pack_backend, set_epilogue_backend
         set_pack_backend(args.pack_backend)
         set_epilogue_backend(args.fp4_epilogue)
@@ -78,7 +81,7 @@ def main():
                        tail_precision=args.tail_precision)
     elif args.precision != 'bf16':
         replace_mlps(model, stochastic=args.precision.endswith('-sr'))
-    if args.fuse_activation:
+    if args.fuse_activation and args.precision != 'torchao-mxfp8':
         from activation import replace_activation_mlps
         replace_activation_mlps(model)
     # Match initialization/data across modes. Separate RNG for quantization.
@@ -101,9 +104,10 @@ def main():
                                     'profile_dir': str(args.profile_dir) if args.profile_dir else None},
           'parameters': sum(x.numel() for x in model.parameters()),
           'torch': torch.__version__, 'gpu': torch.cuda.get_device_name(),
-          'native_low_precision_gemm': args.precision.startswith(('fp4-native', 'mxfp8-native')),
+          'native_low_precision_gemm': args.precision.startswith(('fp4-native', 'mxfp8-native', 'torchao-mxfp8')),
+          'torchao_version': __import__('torchao').__version__ if args.precision == 'torchao-mxfp8' else None,
           'source_sha256': {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py', 'epilogue.py', 'activation.py')}})
+                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py', 'epilogue.py', 'activation.py', 'torchao_backend.py')}})
     def batch(data, offset):
         z = torch.from_numpy(np.array(data[offset:offset+count+1], dtype=np.int64)).cuda()
         return z[:-1].view(args.batch, args.sequence), z[1:].view(args.batch, args.sequence)

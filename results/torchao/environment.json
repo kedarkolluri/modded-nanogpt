@@ -1,0 +1,14 @@
+{
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "executable": "/home/kedar/projects/inklings2-mini/.venv-torchao/bin/python",
+  "architecture": "aarch64",
+  "torch": "2.14.0+cu130",
+  "torchao": "0.18.0",
+  "triton": "3.8.0",
+  "gpu": "NVIDIA GB10",
+  "capability": [
+    12,
+    1
+  ],
+  "torchao_path": "/home/kedar/projects/inklings2-mini/.venv-torchao/lib/python3.12/site-packages/torchao/__init__.py"
+}

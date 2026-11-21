@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "torch": "2.14.0+cu130",
+  "torchao": "0.18.0",
+  "exact_official_adapter_compiled_outputs_input_weight_gradients": true,
+  "master_weight_dtype": "torch.float32",
+  "cuda_quantize_kernel_registered": true,
+  "dynamo_counters": {
+    "stats": {
+      "calls_captured": 3,
+      "unique_graphs": 1
+    },
+    "aot_autograd": {
+      "total": 1,
+      "autograd_cache_bypass": 1,
+      "ok": 1
+    },
+    "inductor": {
+      "pattern_matcher_count": 44,
+      "pattern_matcher_nodes": 55,
+      "fxgraph_cache_miss": 2,
+      "extern_calls": 21,
+      "async_compile_cache_miss": 14,
+      "triton_bundler_save_kernel": 512,
+      "triton_bundler_save_static_autotuner": 2,
+      "benchmarking.InductorBenchmarker.benchmark": 62,
+      "benchmarking.InductorBenchmarker.benchmark_gpu": 62,
+      "async_compile_cache_hit": 3
+    },
+    "graph_break": {},
+    "aten_mm_info": {
+      "aten._scaled_mm.default_128_3072_768": 1,
+      "aten._scaled_mm.default_128_768_3072": 1,
+      "aten._scaled_mm.default_3072_768_128": 1
+    }
+  }
+}
