@@ -1,0 +1,5 @@
+==PROF== Connected to process 1128890 (/usr/bin/python3.12)
+==PROF== Profiling "_kernel" - 0: 0%....50%....100% - 16 passes
+==PROF== Profiling "_buffered_kernel" - 1: 0%....50%....100% - 16 passes
+==PROF== Disconnected from process 1128890
+==PROF== Report: /home/kedar/projects/inklings2-mini/results/buffered-mxfp8/serial-buffered.ncu-rep

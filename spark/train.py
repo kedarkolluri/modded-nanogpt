@@ -29,6 +29,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--precision', choices=['bf16', 'fp4-reference-sr', 'fp4-reference-nearest', 'fp4-native-sr', 'fp4-native-nearest', 'mxfp8-native-sr', 'mxfp8-native-nearest', 'torchao-mxfp8'], default='bf16')
     p.add_argument('--fuse-activation', action='store_true')
+    p.add_argument('--buffered-mxfp8', action='store_true', help='Use explicit quantized lookahead buffers with --pipeline-mxfp8')
     p.add_argument('--pipeline-mxfp8', action='store_true', help='Experimental operand quantization inside first-projection GEMM loop')
     p.add_argument('--fuse-mlp-epilogue', action='store_true', help='Experimental native MXFP8 GEMM/activation/packing kernel')
     p.add_argument('--compile', action='store_true', help='Compile model forward and backward with Inductor')
@@ -91,11 +92,13 @@ def main():
     if args.fuse_mlp_epilogue:
         from fused_mlp_epilogue import replace_mlps as replace_epilogue
         replace_epilogue(model)
+    if args.buffered_mxfp8 and not args.pipeline_mxfp8:
+        raise ValueError('--buffered-mxfp8 requires --pipeline-mxfp8')
     if args.pipeline_mxfp8:
         if not args.precision.startswith('mxfp8-native') or args.fuse_mlp_epilogue:
             raise ValueError('Operand pipeline requires native MXFP8 and cannot combine with epilogue experiment')
         from pipelined_mxfp8 import replace_mlps as replace_pipeline
-        replace_pipeline(model)
+        replace_pipeline(model,buffered=args.buffered_mxfp8)
     # Match initialization/data across modes. Separate RNG for quantization.
     torch.cuda.manual_seed_all(args.seed + 1000)
     optimizers = [

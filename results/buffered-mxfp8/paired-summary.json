@@ -1,0 +1,30 @@
+[
+  {
+    "shape": [
+      8192,
+      3072,
+      768
+    ],
+    "k_iterations": 24,
+    "median_ms": {
+      "separate": 0.6411104547579902,
+      "serial": 2.3573224300435065,
+      "buffered": 2.842085704411546
+    },
+    "buffered_vs_serial_speedup": 0.8294339704057553
+  },
+  {
+    "shape": [
+      1024,
+      1024,
+      4096
+    ],
+    "k_iterations": 128,
+    "median_ms": {
+      "separate": 0.5034074083062037,
+      "serial": 0.5121325588587559,
+      "buffered": 0.510571539492318
+    },
+    "buffered_vs_serial_speedup": 1.003057395968428
+  }
+]

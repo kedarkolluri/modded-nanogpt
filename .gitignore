@@ -11,3 +11,8 @@ snapshots/
 *.sqlite
 .venv-*/
 results/gemm-epilogue/*.ptx
+results/buffered-mxfp8/*.ptx
+results/buffered-mxfp8/*.ttgir
+results/buffered-mxfp8/*.llir
+results/buffered-mxfp8/*.cubin
+results/buffered-mxfp8/*.sass

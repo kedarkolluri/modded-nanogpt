@@ -1,0 +1,81 @@
+{
+  "serial": {
+    "cubin_sha256": "43fbd73891adfe5dd235a18382334d7a61e6a0df5f6762ced71e2ab0cea07011",
+    "static_instructions": 1672,
+    "static_qmma": 8,
+    "fp8_pack_instructions": 40,
+    "lowered_loop_signatures": [
+      "%acc = scf.for %block = %c0_i32 to %c6_i32 step %c1_i32 iter_args(%acc_40 = %cst_15) -> (tensor<16x64xf32, #mma>)  : i32 {"
+    ],
+    "instructions_between_first_8_qmma": [
+      "/*4c60*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R8, R40, R36, R8, R64, R65, URZ ;   /* 0x741040242808747a */",
+      "/*4c70*/                   PRMT R37, R70, 0x7771, RZ ;                                        /* 0x0000777146257816 */",
+      "/*4c80*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R4, R40, R32, R4, R64, R37, URZ ;   /* 0x725040202804747a */",
+      "/*4c90*/                   LDS.U16 R32, [R139+0x40] ;                                         /* 0x000040008b207984 */",
+      "/*4ca0*/                   PRMT R33, R67, 0x7770, RZ ;                                        /* 0x0000777043217816 */",
+      "/*4cb0*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R8, R28, R38, R8, R66, R33, URZ ;   /* 0x721042261c08747a */",
+      "/*4cc0*/                   PRMT R33, R67, 0x7771, RZ ;                                        /* 0x0000777143217816 */",
+      "/*4cd0*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R4, R28, R34, R4, R66, R33, URZ ;   /* 0x721042221c04747a */",
+      "/*4ce0*/                   LDS.U16 R28, [R139+0x60] ;                                         /* 0x000060008b1c7984 */",
+      "/*4cf0*/                   PRMT R29, R32, 0x7770, RZ ;                                        /* 0x00007770201d7816 */",
+      "/*4d00*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R8, R24, R16, R8, R68, R29, URZ ;   /* 0x71d044101808747a */",
+      "/*4d10*/                   PRMT R17, R32, 0x7771, RZ ;                                        /* 0x0000777120117816 */",
+      "/*4d20*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R4, R24, R20, R4, R68, R17, URZ ;   /* 0x711044141804747a */",
+      "/*4d30*/                   PRMT R16, R28.reuse, 0x7770, RZ ;                                  /* 0x000077701c107816 */",
+      "/*4d40*/                   @!UPT UIADD3 URZ, UPT, UPT, URZ, URZ, URZ ;                        /* 0x000000fffffff290 */",
+      "/*4d50*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R8, R12, R18, R8, R69, R16, URZ ;   /* 0x710045120c08747a */",
+      "/*4d60*/                   PRMT R16, R28, 0x7771, RZ ;                                        /* 0x000077711c107816 */",
+      "/*4d70*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R4, R12, R22, R4, R69, R16, URZ ;   /* 0x710045160c04747a */"
+    ]
+  },
+  "buffered": {
+    "cubin_sha256": "e796281e44942660d99ba530b0d721ea262e58526bfdd68a76ce4e0632830b78",
+    "static_instructions": 3560,
+    "static_qmma": 16,
+    "fp8_pack_instructions": 80,
+    "lowered_loop_signatures": [
+      "%sw:5 = scf.for %block = %c1_i32 to %c6_i32 step %c1_i32 iter_args(%acc_83 = %cst_15, %aq = %0, %sa = %2, %wq = %4, %sw_84 = %6) -> (tensor<16x64xf32, #mma>, tensor<16x128xf8E4M3FN, #blocked>, tensor<16x4xi8, #ttg.slice<{dim = 2, parent = #blocked2}>>, tensor<64x128xf8E4M3FN, #blocked>, tensor<64x4xi8, #ttg.slice<{dim = 2, parent = #blocked2}>>)  : i32 {"
+    ],
+    "instructions_between_first_8_qmma": [
+      "/*ca30*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R40, R48, R8, R40, R32, R59, URZ ;  /* 0x73b020083028747a */",
+      "/*ca40*/                   LDS.U16 R59, [R6+0x40] ;                                           /* 0x00004000063b7984 */",
+      "/*ca50*/                   PRMT R9, R61, 0x7771, RZ ;                                         /* 0x000077713d097816 */",
+      "/*ca60*/                   PRMT R8, R62, 0x7770, RZ ;                                         /* 0x000077703e087816 */",
+      "/*ca70*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R44, R48, R52, R44, R32, R9, URZ ;  /* 0x70902034302c747a */",
+      "/*ca80*/                   PRMT R32, R34, 0x7610, R32 ;                                       /* 0x0000761022207816 */",
+      "/*ca90*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R40, R28, R10, R40, R33, R8, URZ ;  /* 0x7080210a1c28747a */",
+      "/*caa0*/                   LDS.U16 R10, [R6+0x60] ;                                           /* 0x00006000060a7984 */",
+      "/*cab0*/                   PRMT R8, R62, 0x7771, RZ ;                                         /* 0x000077713e087816 */",
+      "/*cac0*/                   PRMT R9, R59, 0x7770, RZ ;                                         /* 0x000077703b097816 */",
+      "/*cad0*/                   LOP3.LUT R11, R176, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffffb00b7812 */",
+      "/*cae0*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R44, R28, R54, R44, R33, R8, URZ ;  /* 0x708021361c2c747a */",
+      "/*caf0*/                   FADD R29, R90, 127 ;                                               /* 0x42fe00005a1d7421 */",
+      "/*cb00*/                   FADD R31, R36, 127 ;                                               /* 0x42fe0000241f7421 */",
+      "/*cb10*/                   LOP3.LUT R28, R114, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffff721c7812 */",
+      "/*cb20*/                   PRMT R30, R91, 0x7610, R30 ;                                       /* 0x000076105b1e7816 */",
+      "/*cb30*/                   F2I.U16.TRUNC.NTZ R29, R29 ;                                       /* 0x0000001d001d7305 */",
+      "/*cb40*/                   PRMT R33, R5, 0x7610, R33 ;                                        /* 0x0000761005217816 */",
+      "/*cb50*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R40, R16, R24, R40, R56, R9, URZ ;  /* 0x709038181028747a */",
+      "/*cb60*/                   F2I.U16.TRUNC.NTZ R31, R31 ;                                       /* 0x0000001f001f7305 */",
+      "/*cb70*/                   PRMT R9, R59, 0x7771, RZ ;                                         /* 0x000077713b097816 */",
+      "/*cb80*/                   PRMT R8, R10, 0x7770, RZ ;                                         /* 0x000077700a087816 */",
+      "/*cb90*/                   LOP3.LUT R24, R110, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffff6e187812 */",
+      "/*cba0*/                   LOP3.LUT R25, R113, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffff71197812 */",
+      "/*cbb0*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R44, R16, R20, R44, R56, R9, URZ ;  /* 0x70903814102c747a */",
+      "/*cbc0*/                   LOP3.LUT R9, R174, 0xffff, RZ, 0xc0, !PT ;                         /* 0x0000ffffae097812 */",
+      "/*cbd0*/                   LOP3.LUT R16, R89, 0xffff, RZ, 0xc0, !PT ;                         /* 0x0000ffff59107812 */",
+      "/*cbe0*/                   LOP3.LUT R17, R104, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffff68117812 */",
+      "/*cbf0*/                   LOP3.LUT R18, R105, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffff69127812 */",
+      "/*cc00*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R40, R12, R26, R40, R57, R8, URZ ;  /* 0x7080391a0c28747a */",
+      "/*cc10*/                   LOP3.LUT R19, R106, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffff6a137812 */",
+      "/*cc20*/                   LOP3.LUT R20, R107, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffff6b147812 */",
+      "/*cc30*/                   LOP3.LUT R21, R109, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffff6d157812 */",
+      "/*cc40*/                   PRMT R8, R10, 0x7771, RZ ;                                         /* 0x000077710a087816 */",
+      "/*cc50*/                   LOP3.LUT R10, R177, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffffb10a7812 */",
+      "/*cc60*/                   LOP3.LUT R26, R112, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffff701a7812 */",
+      "/*cc70*/                   LOP3.LUT R27, R115, 0xffff, RZ, 0xc0, !PT ;                        /* 0x0000ffff731b7812 */",
+      "/*cc80*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R44, R12, R22, R44, R57, R8, URZ ;  /* 0x708039160c2c747a */"
+    ]
+  },
+  "limitation": "Static scheduling evidence does not measure simultaneous execution or percent overlap."
+}
