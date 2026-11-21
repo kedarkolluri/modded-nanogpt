@@ -1,0 +1,2 @@
+Generating SQLite file results/operation-budget/nsys/current.sqlite from results/operation-budget/nsys/current.nsys-rep
+Processing [results/operation-budget/nsys/current.sqlite] with [/opt/nvidia/nsight-systems/2025.3.2/host-linux-armv8/reports/cuda_gpu_kern_sum.py] to [results/operation-budget/nsys/current_cuda_gpu_kern_sum.csv]... PROCESSED

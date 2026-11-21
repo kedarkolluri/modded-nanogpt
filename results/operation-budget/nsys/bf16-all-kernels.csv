@@ -1,0 +1,63 @@
+phase,category,kernel,ms_per_step,calls_per_step
+phase/forward,"Other GEMMs (BF16 MLP, attention projections, head)",nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_TNNN,13.971359999999997,13.000000000000005
+phase/backward,"Other GEMMs (BF16 MLP, attention projections, head)",nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_NNNN,11.95661866666667,23.999999999999982
+phase/optimizer,Optimizer (Muon + AdamW),void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_32x5_nn_align8>(T1::Params),11.715647666666653,228.0000000000021
+phase/backward,"Other GEMMs (BF16 MLP, attention projections, head)",nvjet_sm121_tst_mma_128x208x32_4_32x104x32_tmaAB_bz_NTNN,10.456842666666663,23.999999999999982
+phase/optimizer,Optimizer (Muon + AdamW),triton_red_fused__to_copy_linalg_vector_norm_0,8.223072000000002,72.00000000000006
+phase/backward,MLP activation derivative,_relu_square_grad,7.953909333333333,12.000000000000004
+phase/backward,"Other GEMMs (BF16 MLP, attention projections, head)",nvjet_sm121_tst_mma_128x96x64_3_64x24x64_tmaAB_bz_NTNN,7.483114666666666,48.000000000000064
+phase/backward,Cross entropy / softmax,triton_red_fused__log_softmax__log_softmax_backward_data__to_copy__unsafe_view_arange_eq_expand_nll_loss_backward_scalar_tensor_view_0,7.238101333333334,1.0
+phase/backward,Flash attention,"void pytorch_flash::flash_bwd_dq_dk_dv_loop_seqk_parallel_kernel<Flash_bwd_kernel_traits<(int)128, (int)64, (int)64, (int)8, (int)4, (int)2, (int)2, (bool)1, (bool)0, cutlass::bfloat16_t, Flash_kernel_traits<(int)128, (int)64, (int)64, (int)8, cutlass::bfloat16_t>>, (bool)0, (bool)1, (bool)0, (bool)0, (bool)1, (bool)1, (bool)0>(pytorch_flash::Flash_bwd_params)",7.056736,12.000000000000004
+phase/forward,"Other GEMMs (BF16 MLP, attention projections, head)",void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8>(T1::Params),6.473973333333333,48.000000000000064
+phase/backward,"Other GEMMs (BF16 MLP, attention projections, head)",nvjet_sm121_tst_mma_256x112x64_2_64x56x64_tmaAB_bz_NNNN,6.344757333333334,1.0
+phase/backward,"Other GEMMs (BF16 MLP, attention projections, head)",void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x256_32x3_nt_align8>(T1::Params),6.225162666666666,1.0
+phase/forward,"Other GEMMs (BF16 MLP, attention projections, head)",void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x256_32x3_tn_align8>(T1::Params),6.214975999999999,12.000000000000004
+phase/backward,"Other GEMMs (BF16 MLP, attention projections, head)",void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_nn_align8>(T1::Params),5.97144533333333,48.000000000000064
+phase/backward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm_backward__to_copy_add_view_6,5.740170666666668,11.000000000000002
+phase/forward,MLP activation forward,_relu_square,5.264298666666666,12.000000000000004
+phase/optimizer,Optimizer (Muon + AdamW),"void at::native::<unnamed>::multi_tensor_apply_kernel<at::native::<unnamed>::FusedOptimizerTensorListMetadata<(int)4>, at::native::<unnamed>::FusedAdamMathFunctor<float, (int)4, (at::native::ADAM_MODE)1, (bool)0>, const float *, double, double, double, double, double, bool, const float *, const float *>(T1, T2, T3...)",4.829109333333333,1.0
+phase/optimizer,Optimizer (Muon + AdamW),nvjet_sm121_tst_mma_128x96x64_3_64x24x64_tmaAB_bz_TNNN,4.608479999999998,107.99999999999955
+phase/optimizer,Optimizer (Muon + AdamW),"void at::native::vectorized_elementwise_kernel<(int)4, at::native::CUDAFunctor_add<float>, std::array<char *, (unsigned long)3>, (bool)0>(int, T2, T3)",4.497866666666666,143.99999999999972
+phase/backward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm_backward__to_copy_add_view_7,4.323050666666666,10.0
+phase/optimizer,Optimizer (Muon + AdamW),nvjet_sm121_tst_mma_128x96x64_3_64x32x64_tmaAB_bx_NNNN,4.31696,240.00000000000244
+phase/forward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_cat_mul_neg_slice_transpose_unsqueeze_view_2,4.1020373333333335,12.000000000000004
+phase/backward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__fused_rms_norm_backward__to_copy_add_mul_neg_slice_slice_backward_transpose_unsqueeze_5,3.8459093333333327,12.000000000000004
+phase/optimizer,Optimizer (Muon + AdamW),void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_64x3_tn_align8>(T1::Params),3.594474666666671,240.00000000000244
+phase/optimizer,Optimizer (Muon + AdamW),void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_64x3_nn_align8>(T1::Params),3.574464000000005,240.00000000000244
+phase/forward,Cross entropy / softmax,triton_red_fused__log_softmax__to_copy__unsafe_view_prepare_softmax_online_view_12,3.229888,1.0
+phase/forward,Flash attention,"void pytorch_flash::flash_fwd_kernel<Flash_fwd_kernel_traits<(int)128, (int)128, (int)64, (int)4, (bool)0, (bool)0, cutlass::bfloat16_t, Flash_kernel_traits<(int)128, (int)128, (int)64, (int)4, cutlass::bfloat16_t>>, (bool)0, (bool)1, (bool)0, (bool)0, (bool)1, (bool)1, (bool)0, (bool)0>(pytorch_flash::Flash_fwd_params)",2.9562880000000007,12.000000000000004
+phase/optimizer,Optimizer (Muon + AdamW),"void at::native::vectorized_elementwise_kernel<(int)4, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float>>, std::array<char *, (unsigned long)2>, (bool)0>(int, T2, T3)",2.903946666666665,72.00000000000006
+phase/optimizer,Optimizer (Muon + AdamW),"void at::native::unrolled_elementwise_kernel<at::native::CUDAFunctor_add<float>, std::array<char *, (unsigned long)3>, (int)4, TrivialOffsetCalculator<(int)2, unsigned int>, TrivialOffsetCalculator<(int)1, unsigned int>, at::native::memory::LoadWithCast<(int)2>, at::native::memory::StoreWithCast<(int)1>>(int, T1, T2, T4, T5, T6, T7)",2.8285759999999995,72.00000000000006
+phase/backward,Flash attention,"void pytorch_flash::flash_bwd_dot_do_o_kernel<(bool)1, Flash_bwd_kernel_traits<(int)128, (int)64, (int)64, (int)8, (int)4, (int)2, (int)2, (bool)1, (bool)0, cutlass::bfloat16_t, Flash_kernel_traits<(int)128, (int)64, (int)64, (int)8, cutlass::bfloat16_t>>>(pytorch_flash::Flash_bwd_params)",2.601482666666666,12.000000000000004
+phase/forward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_6,2.3637653333333333,5.999999999999998
+phase/forward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_9,2.280234666666667,4.0
+phase/forward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_5,2.137034666666667,5.999999999999998
+phase/optimizer,Optimizer (Muon + AdamW),triton_poi_fused_add_mul_4,2.105345000000002,300.0000000000004
+phase/backward,Flash attention,"void pytorch_flash::flash_bwd_convert_dq_kernel<Flash_bwd_kernel_traits<(int)128, (int)64, (int)64, (int)8, (int)4, (int)2, (int)2, (bool)1, (bool)0, cutlass::bfloat16_t, Flash_kernel_traits<(int)128, (int)64, (int)64, (int)8, cutlass::bfloat16_t>>>(pytorch_flash::Flash_bwd_params, int)",2.0702186666666664,12.000000000000004
+phase/forward,Other fused pointwise / casts / copies / embedding / RNG,triton_poi_fused__to_copy_t_4,1.820202666666667,23.999999999999982
+phase/backward,Other fused pointwise / casts / copies / embedding / RNG,triton_poi_fused__to_copy_add_11,1.6314773333333332,1.0
+phase/optimizer,Optimizer (Muon + AdamW),triton_poi_fused_mul_3,1.6223786666666715,359.999999999997
+phase/forward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_8,1.4039253333333332,4.999999999999999
+phase/backward,Other fused pointwise / casts / copies / embedding / RNG,triton_poi_fused__to_copy_2,1.1246720000000001,23.999999999999982
+phase/forward,Other fused pointwise / casts / copies / embedding / RNG,triton_poi_fused__to_copy_t_11,0.9986773333333334,1.0
+phase/forward,Other fused pointwise / casts / copies / embedding / RNG,triton_poi_fused__to_copy_t_1,0.8949546666666665,48.000000000000064
+phase/optimizer,Optimizer (Muon + AdamW),triton_poi_fused_add_mul_5,0.844416,48.000000000000064
+phase/backward,Fused normalization / residual / rotary / related ops,triton_poi_fused__fused_rms_norm__fused_rms_norm_backward__to_copy_add_embedding_dense_backward_view_9,0.811744,1.0
+phase/backward,Other fused pointwise / casts / copies / embedding / RNG,triton_poi_fused__to_copy_4,0.7271253333333333,48.000000000000064
+phase/optimizer,Optimizer (Muon + AdamW),void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_32x5_tn_align8>(T1::Params),0.6160213333333335,12.000000000000004
+phase/optimizer,Optimizer (Muon + AdamW),void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_64x3_nt_align8>(T1::Params),0.5915626666666667,12.000000000000004
+phase/forward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_7,0.5773226666666667,1.0
+phase/optimizer,Optimizer (Muon + AdamW),triton_poi_fused__to_copy_add_div_linalg_vector_norm_2,0.5446183333333336,72.00000000000006
+phase/backward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm_backward__to_copy_add_view_3,0.48560000000000003,1.0
+phase/backward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__fused_rms_norm_backward__to_copy__unsafe_view_add_view_8,0.483232,1.0
+phase/backward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__fused_rms_norm_backward__to_copy_add_embedding_dense_backward_view_10,0.474048,1.0
+phase/forward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_10,0.460544,1.0
+phase/optimizer,Optimizer (Muon + AdamW),triton_poi_fused_add_mul_permute_4,0.36340266666666665,12.000000000000004
+phase/forward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__to_copy_embedding_0,0.2089813333333333,1.0
+phase/optimizer,Optimizer (Muon + AdamW),triton_poi_fused_permute_6,0.19678933333333332,12.000000000000004
+phase/backward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm_backward__to_copy_view_1,0.173728,1.0
+phase/forward,Fused normalization / residual / rotary / related ops,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_3,0.15611733333333333,1.0
+phase/optimizer,Optimizer (Muon + AdamW),triton_per_fused__to_copy_linalg_vector_norm_1,0.0734506666666665,72.00000000000006
+phase/forward,Cross entropy / softmax,triton_red_fused__log_softmax__to_copy__unsafe_view_nll_loss_forward_view_13,0.012789333333333333,1.0
+phase/optimizer,Optimizer (Muon + AdamW),"void at::native::<unnamed>::multi_tensor_apply_kernel<at::native::<unnamed>::TensorListMetadata<(int)1>, at::native::<unnamed>::BinaryOpScalarFunctor<float, (int)1, (int)1, (int)0>, std::plus<float>, float>(T1, T2, T3...)",0.001898666666666667,1.0
+phase/backward,Other fused pointwise / casts / copies / embedding / RNG,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::FillFunctor<float>, std::array<char *, (unsigned long)1>, (bool)0>(int, T2, T3)",0.0008533333333333333,1.0
