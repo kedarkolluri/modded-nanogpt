@@ -273,3 +273,8 @@ It packs weights once per forward and quantizes activations inside GEMM. Wider
 output tiles reduce repeated activation conversion. Add `--buffered-mxfp8` to
 try explicit lookahead with the reuse path. These remain opt-in experiments.
 See [weight reuse measurements](results/reuse-mxfp8/REPORT.md).
+
+[Complete operation and training budget](results/operation-budget/REPORT.md)
+accounts for every captured kernel in matched BF16/current-MXFP8/weight-reuse
+profiles, lists full-step timings, and distinguishes experimental regressions
+from improvements against the established baseline.
