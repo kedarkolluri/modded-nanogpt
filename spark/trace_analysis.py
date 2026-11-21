@@ -15,7 +15,7 @@ def analyze_trace(path, steps):
     with opener(path, 'rt') as f:
         events = json.load(f)['traceEvents']
     cpu = [e for e in events if e.get('cat') in ('cpu_op', 'user_annotation') and e.get('ph') == 'X']
-    ranges = [e for e in cpu if e['name'].startswith(('phase/', 'optimizer/', 'module/', 'native/'))]
+    ranges = [e for e in cpu if e['name'].startswith(('phase/', 'optimizer/', 'module/', 'native/', 'activation/'))]
     by_external = {e.get('args', {}).get('External id'): e for e in cpu if 'External id' in e.get('args', {})}
     launches = {e['args']['correlation']: e for e in events
                 if e.get('cat') in ('cuda_runtime', 'cuda_driver') and 'correlation' in e.get('args', {})}

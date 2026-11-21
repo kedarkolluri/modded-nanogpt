@@ -27,6 +27,7 @@ def tokens(path):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--precision', choices=['bf16', 'fp4-reference-sr', 'fp4-reference-nearest', 'fp4-native-sr', 'fp4-native-nearest', 'mxfp8-native-sr', 'mxfp8-native-nearest'], default='bf16')
+    p.add_argument('--fuse-activation', action='store_true')
     p.add_argument('--fp4-epilogue', choices=['eager', 'triton'], default='eager')
     p.add_argument('--tail-precision', choices=['bf16', 'mxfp8'], default='bf16')
     p.add_argument('--pack-backend', choices=['eager', 'triton', 'triton-tiled'], default='eager')
@@ -49,6 +50,8 @@ def main():
         p.error('batch*sequence and width must be divisible by 32')
     if args.profile_dir and (args.profile_start < 5 or args.profile_steps < 1 or args.profile_start + args.profile_steps > args.steps):
         p.error('Profile must begin after warmup and finish within the run')
+    if args.fuse_activation and (not args.precision.startswith('mxfp8-native') or args.pack_backend == 'eager'):
+        p.error('Activation fusion requires native MXFP8 and a Triton packing backend')
     profiler = StepProfiler(args.profile_dir, args.profile_start, args.profile_steps)
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
@@ -67,6 +70,9 @@ def main():
                        tail_precision=args.tail_precision)
     elif args.precision != 'bf16':
         replace_mlps(model, stochastic=args.precision.endswith('-sr'))
+    if args.fuse_activation:
+        from activation import replace_activation_mlps
+        replace_activation_mlps(model)
     # Match initialization/data across modes. Separate RNG for quantization.
     torch.cuda.manual_seed_all(args.seed + 1000)
     optimizers = [
@@ -86,7 +92,7 @@ def main():
           'torch': torch.__version__, 'gpu': torch.cuda.get_device_name(),
           'native_low_precision_gemm': args.precision.startswith(('fp4-native', 'mxfp8-native')),
           'source_sha256': {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py', 'epilogue.py')}})
+                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py', 'epilogue.py', 'activation.py')}})
     def batch(data, offset):
         z = torch.from_numpy(np.array(data[offset:offset+count+1], dtype=np.int64)).cuda()
         return z[:-1].view(args.batch, args.sequence), z[1:].view(args.batch, args.sequence)

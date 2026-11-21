@@ -17,7 +17,7 @@ class StepProfiler:
         self.active = False
         self.prof = None
         self.hooks = []
-        self.originals = {}
+        self.originals = []
 
     def scope(self, name):
         return torch.profiler.record_function(name) if self.active else nullcontext()
@@ -46,11 +46,20 @@ class StepProfiler:
         import native
         for name in ('fp4_pack', 'fp8_pack', 'mx_mm', 'apply_outer'):
             original = getattr(native, name)
-            self.originals[name] = original
+            self.originals.append((native, name, original))
             def wrapped(*args, _fn=original, _name=name, **kwargs):
                 with torch.profiler.record_function('native/' + _name):
                     return _fn(*args, **kwargs)
             setattr(native, name, wrapped)
+        if any(type(module).__name__ == 'FusedActivationMLP' for module in model.modules()):
+            import activation
+            for name in ('pack_activation', 'activation_backward'):
+                original = getattr(activation, name)
+                self.originals.append((activation, name, original))
+                def wrapped(*args, _fn=original, _name=name, **kwargs):
+                    with torch.profiler.record_function('activation/' + _name):
+                        return _fn(*args, **kwargs)
+                setattr(activation, name, wrapped)
 
     def after_step(self, step):
         if not self.active:
@@ -65,8 +74,8 @@ class StepProfiler:
         import native
         for hook in self.hooks:
             hook.remove()
-        for name, fn in self.originals.items():
-            setattr(native, name, fn)
+        for module, name, fn in self.originals:
+            setattr(module, name, fn)
         self.prof.stop()
         self.active = False
         rows = []

@@ -73,11 +73,16 @@ def _fp4(X, Q, S, O, D, Maximum, ROWS: tl.constexpr, COLS: tl.constexpr,
 @triton.jit
 def _fp8(X, Q, S, Seed, D, ROWS: tl.constexpr, COLS: tl.constexpr,
          STRIDE_R: tl.constexpr, STRIDE_C: tl.constexpr, NC: tl.constexpr,
-         B: tl.constexpr, STOCHASTIC: tl.constexpr, SAVE_DEQUANT: tl.constexpr):
+         B: tl.constexpr, STOCHASTIC: tl.constexpr, SAVE_DEQUANT: tl.constexpr,
+         RELU_SQUARE: tl.constexpr):
     row = tl.program_id(0)
     col = tl.arange(0, B)
     x = tl.load(X + row * STRIDE_R + col * STRIDE_C,
                 (row < ROWS) & (col < COLS), 0).to(tl.float32)
+    if RELU_SQUARE:
+        positive = tl.maximum(x, 0.)
+        # Match eager BF16 ReLU().square() before quantizing.
+        x = (positive * positive).to(tl.bfloat16).to(tl.float32)
     blocks = tl.reshape(x, (B // 32, 32))
     maximum = tl.max(tl.abs(blocks), 1)
     exponent = tl.ceil(tl.log2(tl.maximum(tl.div_rn(maximum, 448.), 1.1754943508222875e-38)))
@@ -128,7 +133,9 @@ def fp4_pack(x, per_token=False):
     return packed.view(torch.float4_e2m1fn_x2), scales.view(torch.float8_e4m3fn), outer, dequant
 
 
-def fp8_pack(x, stochastic=True, return_dequant=False):
+def fp8_pack(x, stochastic=True, return_dequant=False, relu_square=False):
+    if relu_square and x.dtype != torch.bfloat16:
+        raise ValueError("Fused ReLU-square packing expects BF16 GEMM output")
     x = x.detach()
     rows, cols = x.shape
     if cols % 32:
@@ -140,6 +147,6 @@ def fp8_pack(x, stochastic=True, return_dequant=False):
     seed = torch.randint(0, 2**31-1, (), device=x.device, dtype=torch.int64) if stochastic else scales
     dequant = torch.empty((rows, cols), device=x.device, dtype=torch.bfloat16) if return_dequant else packed
     _fp8[(padded_rows,)](x, packed, scales, seed, dequant, rows, cols, *x.stride(), nc,
-        max(128, triton.next_power_of_2(cols)), stochastic, return_dequant, num_warps=4)
+        max(128, triton.next_power_of_2(cols)), stochastic, return_dequant, relu_square, num_warps=4)
     result = (packed, scales.view(torch.float8_e8m0fnu))
     return (*result, dequant) if return_dequant else result
