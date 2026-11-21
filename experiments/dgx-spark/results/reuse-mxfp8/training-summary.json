@@ -1,0 +1,17 @@
+{
+  "bf16": {
+    "steady_tokens_per_second": 38181.54597620024,
+    "peak_allocated_bytes": 5459261952,
+    "warmup_excluded_steps": 5
+  },
+  "current": {
+    "steady_tokens_per_second": 35888.00282229431,
+    "peak_allocated_bytes": 5037537792,
+    "warmup_excluded_steps": 5
+  },
+  "reuse": {
+    "steady_tokens_per_second": 35116.62095742454,
+    "peak_allocated_bytes": 5037275648,
+    "warmup_excluded_steps": 5
+  }
+}

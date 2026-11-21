@@ -267,3 +267,9 @@ An explicit quantized lookahead variant is available with
 `--pipeline-mxfp8 --buffered-mxfp8`. It has verified loop-carried operand buffers
 and static instruction interleaving, but shows no useful speedup in the tested
 shapes. See [buffered kernel measurements and schedule evidence](results/buffered-mxfp8/REPORT.md).
+
+The next reuse experiment is `--pipeline-mxfp8 --reuse-mxfp8-weights`.
+It packs weights once per forward and quantizes activations inside GEMM. Wider
+output tiles reduce repeated activation conversion. Add `--buffered-mxfp8` to
+try explicit lookahead with the reuse path. These remain opt-in experiments.
+See [weight reuse measurements](results/reuse-mxfp8/REPORT.md).

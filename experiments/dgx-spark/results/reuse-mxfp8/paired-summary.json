@@ -1,0 +1,44 @@
+[
+  {
+    "shape": [
+      8192,
+      3072,
+      768
+    ],
+    "selected_config": {
+      "bm": 16,
+      "bn": 512,
+      "bk": 64,
+      "warps": 8,
+      "stages": 1,
+      "buffered": false
+    },
+    "median_ms": {
+      "separate": 0.6384564210709773,
+      "both_in_loop": 2.442317807674408,
+      "weight_reuse": 1.1711400998525383
+    },
+    "speedup_vs_separate": 0.5451580226408158
+  },
+  {
+    "shape": [
+      1024,
+      1024,
+      4096
+    ],
+    "selected_config": {
+      "bm": 32,
+      "bn": 256,
+      "bk": 64,
+      "warps": 4,
+      "stages": 1,
+      "buffered": false
+    },
+    "median_ms": {
+      "separate": 0.5072155120365458,
+      "both_in_loop": 0.49768789036938677,
+      "weight_reuse": 0.4044295961112645
+    },
+    "speedup_vs_separate": 1.2541503315128386
+  }
+]

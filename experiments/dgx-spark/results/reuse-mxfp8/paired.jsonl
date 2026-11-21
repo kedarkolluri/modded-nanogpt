@@ -1,0 +1,26 @@
+{"shape": [8192, 3072, 768], "selected_config": {"bm": 16, "bn": 512, "bk": 64, "warps": 8, "stages": 1, "buffered": false}, "seed": 43, "exact": true}
+{"shape": [8192, 3072, 768], "repeat": 0, "path": "separate", "ms": 0.6331339989389692}
+{"shape": [8192, 3072, 768], "repeat": 0, "path": "both_in_loop", "ms": 2.4286215901374817}
+{"shape": [8192, 3072, 768], "repeat": 0, "path": "weight_reuse", "ms": 1.1725024753365636}
+{"shape": [8192, 3072, 768], "repeat": 1, "path": "weight_reuse", "ms": 1.1998886599028407}
+{"shape": [8192, 3072, 768], "repeat": 1, "path": "both_in_loop", "ms": 2.4536648634317757}
+{"shape": [8192, 3072, 768], "repeat": 1, "path": "separate", "ms": 0.6401169057687124}
+{"shape": [8192, 3072, 768], "repeat": 2, "path": "separate", "ms": 0.6372553678719621}
+{"shape": [8192, 3072, 768], "repeat": 2, "path": "both_in_loop", "ms": 2.435287210345268}
+{"shape": [8192, 3072, 768], "repeat": 2, "path": "weight_reuse", "ms": 1.1679619215736705}
+{"shape": [8192, 3072, 768], "repeat": 3, "path": "weight_reuse", "ms": 1.169777724368513}
+{"shape": [8192, 3072, 768], "repeat": 3, "path": "both_in_loop", "ms": 2.4493484050035477}
+{"shape": [8192, 3072, 768], "repeat": 3, "path": "separate", "ms": 0.6396574742699924}
+{"shape": [1024, 1024, 4096], "selected_config": {"bm": 32, "bn": 256, "bk": 64, "warps": 4, "stages": 1, "buffered": false}, "seed": 43, "exact": true}
+{"shape": [1024, 1024, 4096], "repeat": 0, "path": "separate", "ms": 0.510085533062617}
+{"shape": [1024, 1024, 4096], "repeat": 0, "path": "both_in_loop", "ms": 0.5003953732280846}
+{"shape": [1024, 1024, 4096], "repeat": 0, "path": "weight_reuse", "ms": 0.40783611577370266}
+{"shape": [1024, 1024, 4096], "repeat": 1, "path": "weight_reuse", "ms": 0.4026265750671255}
+{"shape": [1024, 1024, 4096], "repeat": 1, "path": "both_in_loop", "ms": 0.4933408975601196}
+{"shape": [1024, 1024, 4096], "repeat": 1, "path": "separate", "ms": 0.5053173025692899}
+{"shape": [1024, 1024, 4096], "repeat": 2, "path": "separate", "ms": 0.5050999748926221}
+{"shape": [1024, 1024, 4096], "repeat": 2, "path": "both_in_loop", "ms": 0.5008350840534073}
+{"shape": [1024, 1024, 4096], "repeat": 2, "path": "weight_reuse", "ms": 0.40432443990872774}
+{"shape": [1024, 1024, 4096], "repeat": 3, "path": "weight_reuse", "ms": 0.4045347523138013}
+{"shape": [1024, 1024, 4096], "repeat": 3, "path": "both_in_loop", "ms": 0.4949804075106889}
+{"shape": [1024, 1024, 4096], "repeat": 3, "path": "separate", "ms": 0.5091137215038019}
