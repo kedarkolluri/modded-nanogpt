@@ -4,10 +4,17 @@ Single-GB10 experiments with native NVFP4 forward matrix multiplication and
 MXFP8 backward matrix multiplication, inspired by Thinking Machines Lab's
 [End-to-End 4-Bit Training](https://thinkingmachines.ai/blog/end-to-end-4-bit-training/).
 
+In the published [modded-nanogpt fork](https://github.com/kedarkolluri/modded-nanogpt/tree/master/experiments/dgx-spark),
+this work lives under `experiments/dgx-spark/`. Run the commands below from that
+directory. See [fork layout and syncing](FORK_WORKFLOW.md) for upstream merges,
+standalone-checkout syncing, and reuse of the existing Spark data.
+
 ## Source and scope
 
-`upstream/` is KellerJordan/modded-nanogpt, checked out at
+`UPSTREAM_REVISION` pins KellerJordan/modded-nanogpt at
 `4ea6b937337a4889b8cfe3f38a93d120048d8f71`.
+`upstream/` holds optional ignored local checkouts; it is not needed to run the
+extracted model.
 `spark/record_model.py` contains definitions extracted from the
 `2024-10-14_ModernArch/dabaaddd-237c-4ec9-939d-6608a9ed5e27.txt` record
 under its MIT license (`LICENSE.upstream`). The historical model uses RoPE,
