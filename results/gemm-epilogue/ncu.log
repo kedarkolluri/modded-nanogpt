@@ -1,0 +1,5 @@
+==PROF== Connected to process 3522116 (/usr/bin/python3.12)
+==PROF== Profiling "_gemm_pack" - 0: 0%....50%....100% - 10 passes
+{'finite': True}
+==PROF== Disconnected from process 3522116
+==PROF== Report: /home/kedar/projects/inklings2-mini/results/gemm-epilogue/fused-kernel.ncu-rep

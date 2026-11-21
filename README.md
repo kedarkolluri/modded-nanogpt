@@ -232,3 +232,33 @@ activations, twice in reversed order, using identical 100-step settings.
 
 Measured TorchAO results, native-kernel verification and installation details:
 [TorchAO comparison](results/torchao/REPORT.md).
+
+## Experimental MXFP8 GEMM epilogue
+
+`--fuse-mlp-epilogue` selects a native SM12x Triton first-projection GEMM whose
+epilogue applies ReLU-square and produces packed MXFP8 inputs/scales for the
+second projection. Use with native MXFP8, Triton packing and `--compile`.
+BF16 preactivation and reconstructed quantized activation are retained for
+backward; the fused path removes the preactivation reread and separate packing
+launch. The backward GEMMs and stochastic-rounding recipe remain unchanged.
+This flag is off by default.
+
+```sh
+$PY spark/check_gemm_epilogue.py
+$PY spark/bench_gemm_epilogue.py
+PYTHON=$PY RUN_DIR=results/my-gemm-epilogue spark/run_gemm_epilogue_comparison.sh
+```
+
+The kernel emits native block-scaled `mma.sync` and async copy instructions;
+it does not use TMEM or emulate MXFP8 with BF16 matrix multiplication.
+
+Experimental operand-loop quantization is available with `--pipeline-mxfp8`
+(native MXFP8, compiled model, mutually exclusive with `--fuse-mlp-epilogue`).
+It quantizes both first-projection operands inside each GEMM K iteration and
+saves their reconstructed values for the existing backward. This repeats
+conversion across output tiles and is currently slower on Spark. Compiler
+staging and asynchronous copies do not by themselves prove conversion/MMA
+overlap. Run `spark/check_pipelined_mxfp8.py`,
+`spark/bench_pipelined_mxfp8.py`, or `spark/run_operand_pipeline_comparison.sh`.
+See [operand-loop results](results/pipelined-mxfp8/REPORT.md) and
+[epilogue results](results/gemm-epilogue/REPORT.md).

@@ -10,3 +10,4 @@ snapshots/
 *.ncu-rep
 *.sqlite
 .venv-*/
+results/gemm-epilogue/*.ptx

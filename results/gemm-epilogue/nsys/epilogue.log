@@ -1,0 +1,21 @@
+{"config": {"precision": "mxfp8-native-sr", "fuse_activation": true, "fuse_mlp_epilogue": true, "compile": true, "compile_mode": "default", "fp4_epilogue": "eager", "tail_precision": "mxfp8", "pack_backend": "triton-tiled", "steps": 24, "layers": 12, "width": 768, "heads": 6, "batch": 32, "sequence": 256, "seed": 42, "eval_every": 50, "eval_batches": 1, "data": "data", "nsight": true, "profile_dir": null, "profile_start": 20, "profile_steps": 3, "output": "results/gemm-epilogue/nsys/epilogue.jsonl"}, "parameters": 123568128, "torch": "2.14.0+cu130", "gpu": "NVIDIA GB10", "native_low_precision_gemm": true, "torchao_version": null, "source_sha256": {"train.py": "0c8e5f63229d80d61a5f71f9ac12eebfb8cd7a8ce8f2f435f14600c6422954b3", "native.py": "4696dd4cf4b64ede25cf20796f8aa3c44412c16703763a24413e045be5b62110", "triton_pack.py": "3141905f2cd61a1942c9075e9fc2853e3308cbd2ac36ca44b54057e3037ceaa9", "triton_pack_tiled.py": "bc88aafcaa8a07072ec0ddbbc716804cdfebb6dd6798c8988fdb950aae1d0862", "precision.py": "f21bcfca89a17a3fc19a00a43705978a9ed8e037b202917776ef02339864dd87", "record_model.py": "572734c9d2fbd4cd73880b33c09f0e857747cc655ccaa9a3bf55c524dcfa7c74", "profile_tools.py": "b183822f44bbaa19f4a34c41567438a7e09fc5da47da7cdcd65fc43726ad006f", "trace_analysis.py": "1714df5b0df4e3a6c118459210deb245238dbc930a77e806e0aaa46e69b8bf45", "epilogue.py": "e9e6a09a12421227c3b5a246c0860002299511a54278577b2dd40cc324c0bf84", "activation.py": "b96b7174d0e0fcf4623ae75bcf5c97452cbf197202b7619a8c770a3cd0c5ad86", "torchao_backend.py": "4d378e77d945bb8814eeed0636269bb8271bd8d73cd8dc241b909c6aa96aa3a8", "fused_mlp_epilogue.py": "8f0d9a9a2c248d135bebf52b2b743afa44901ded5b96c06d5311c11fc497a8a5"}}
+{"step": 0, "val_loss": 15.97856330871582, "train_seconds": 0.0}
+{"step": 1, "train_loss": 15.999078750610352, "step_seconds": 9.598884519014973}
+{"step": 11, "train_loss": 7.516404151916504, "step_seconds": 0.2259081519441679}
+{"step": 21, "train_loss": 7.30422306060791, "step_seconds": 0.22806604602374136}
+Capture range started in the application.
+Capture range ended in the application.
+Generating '/tmp/nsys-report-ed90.qdstrm'
+
+[1/1] [0%                          ] epilogue.nsys-repProcessing events...
+
+[1/1] [0%                          ] epilogue.nsys-rep
+[1/1] [9%                          ] epilogue.nsys-rep
+[1/1] [===========53%              ] epilogue.nsys-rep
+[1/1] [==================77%       ] epilogue.nsys-rep
+[1/1] [========================100%] epilogue.nsys-rep
+[1/1] [========================100%] epilogue.nsys-rep
+{"step": 24, "val_loss": 7.6289520263671875, "train_seconds": 14.791425838833675}
+{"finished": true, "tokens": 196608, "train_seconds": 14.791425838833675, "warmup_excluded_steps": 5, "steady_tokens_per_second": 36383.81155819239, "peak_allocated_bytes": 5036882432, "run_wall_seconds": 19.998701000004075, "step_seconds": [9.598884519014973, 0.24027896497864276, 0.22402996994787827, 0.22503134899307042, 0.22525451699038967, 0.22448419500142336, 0.22423270699800923, 0.22533610195387155, 0.2253286939812824, 0.2226682860055007, 0.2259081519441679, 0.22439392301021144, 0.22560896701179445, 0.2246712030027993, 0.22324473602930084, 0.22574203897966072, 0.22528330195927992, 0.22378392098471522, 0.22320783999748528, 0.2258633669698611, 0.22806604602374136, 0.22579264803789556, 0.22708276304183528, 0.22724762797588482], "dynamo_counters": {"stats": {"calls_captured": 2594, "unique_graphs": 6}, "aot_autograd": {"total": 6, "autograd_cache_hit": 5, "ok": 6, "autograd_cache_bypass": 1}, "inductor": {"triton_bundler_load_static_autotuner": 74, "async_compile_cache_miss": 259, "async_compile_cache_hit": 143, "pattern_matcher_count": 855, "pattern_matcher_nodes": 1025, "extern_calls": 796, "fxgraph_cache_hit": 7}, "frames": {"total": 3, "ok": 3}}}
+Generated:
+	/home/kedar/projects/inklings2-mini/results/gemm-epilogue/nsys/epilogue.nsys-rep

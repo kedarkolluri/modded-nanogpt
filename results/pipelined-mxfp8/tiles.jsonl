@@ -1,0 +1,24 @@
+{"shape": [1, 128, 96], "baseline_ms": 0.015179597278869392}
+{"config": [16, 64, 128, 4, 2], "ms": 0.006764218204824085, "speedup": 2.2441022479203365, "registers": 121, "spills": 0, "cp_async": 0, "exact": true}
+{"config": [32, 64, 128, 4, 2], "ms": 0.008737163624556904, "speedup": 1.7373598493915363, "registers": 150, "spills": 0, "cp_async": 0, "exact": true}
+{"config": [32, 128, 128, 4, 1], "ms": 0.010338908996941013, "speedup": 1.4682010726045271, "registers": 223, "spills": 0, "cp_async": 0, "exact": true}
+{"config": [32, 128, 128, 4, 2], "ms": 0.010386472593315623, "speedup": 1.4614776231767521, "registers": 223, "spills": 0, "cp_async": 0, "exact": true}
+{"config": [32, 128, 128, 4, 3], "ms": 0.010520727132362398, "speedup": 1.4428277711125144, "registers": 223, "spills": 0, "cp_async": 0, "exact": true}
+{"config": [32, 128, 256, 4, 2], "ms": 0.10213639535526238, "speedup": 0.1486208439809335, "registers": 40, "spills": 882, "cp_async": 0, "exact": true}
+{"config": [64, 128, 128, 4, 2], "ms": 0.012589443143304081, "speedup": 1.2057401670655252, "registers": 255, "spills": 40, "cp_async": 0, "exact": true}
+{"shape": [129, 512, 256], "baseline_ms": 0.02640139137885133}
+{"config": [16, 64, 128, 4, 2], "ms": 0.02627845863820216, "speedup": 1.0046780803372712, "registers": 166, "spills": 0, "cp_async": 46, "exact": true}
+{"config": [32, 64, 128, 4, 2], "ms": 0.022177174277261857, "speedup": 1.1904758942134726, "registers": 210, "spills": 0, "cp_async": 54, "exact": true}
+{"config": [32, 128, 128, 4, 1], "ms": 0.024889394914338347, "speedup": 1.0607486228458671, "registers": 255, "spills": 30, "cp_async": 0, "exact": true}
+{"config": [32, 128, 128, 4, 2], "error": "out of resource: shared memory, Required: 102400, Hardware limit: 101376. Reducing block sizes or `num_stages` may help."}
+{"config": [32, 128, 128, 4, 3], "error": "out of resource: shared memory, Required: 184320, Hardware limit: 101376. Reducing block sizes or `num_stages` may help."}
+{"config": [32, 128, 256, 4, 2], "ms": 0.14099849391691754, "speedup": 0.1872459105443224, "registers": 40, "spills": 868, "cp_async": 0, "exact": true}
+{"config": [64, 128, 128, 4, 2], "error": "out of resource: shared memory, Required: 122880, Hardware limit: 101376. Reducing block sizes or `num_stages` may help."}
+{"shape": [8192, 3072, 768], "baseline_ms": 0.6340658017341664}
+{"config": [16, 64, 128, 4, 2], "ms": 9.46233947188766, "speedup": 0.06700941174409962, "registers": 183, "spills": 0, "cp_async": 46, "exact": true}
+{"config": [32, 64, 128, 4, 2], "ms": 6.077679169178009, "speedup": 0.10432696167144377, "registers": 211, "spills": 0, "cp_async": 54, "exact": true}
+{"config": [32, 128, 128, 4, 1], "ms": 3.0562550299095386, "speedup": 0.2074649515596655, "registers": 255, "spills": 76, "cp_async": 0, "exact": true}
+{"config": [32, 128, 128, 4, 2], "error": "out of resource: shared memory, Required: 102400, Hardware limit: 101376. Reducing block sizes or `num_stages` may help."}
+{"config": [32, 128, 128, 4, 3], "error": "out of resource: shared memory, Required: 184320, Hardware limit: 101376. Reducing block sizes or `num_stages` may help."}
+{"config": [32, 128, 256, 4, 2], "error": "out of resource: shared memory, Required: 204800, Hardware limit: 101376. Reducing block sizes or `num_stages` may help."}
+{"config": [64, 128, 128, 4, 2], "error": "out of resource: shared memory, Required: 122880, Hardware limit: 101376. Reducing block sizes or `num_stages` may help."}

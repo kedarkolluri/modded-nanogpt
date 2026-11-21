@@ -1,0 +1,35 @@
+{
+  "bf16": {
+    "mean_tokens_per_second": 38195.07712695021,
+    "repeat_tokens_per_second": [
+      38281.43686939101,
+      38108.71738450941
+    ],
+    "peak_allocated_bytes": [
+      5459261952,
+      5459261952
+    ]
+  },
+  "current": {
+    "mean_tokens_per_second": 36160.10161241726,
+    "repeat_tokens_per_second": [
+      36021.77563336922,
+      36298.4275914653
+    ],
+    "peak_allocated_bytes": [
+      5037537792,
+      5037537792
+    ]
+  },
+  "epilogue": {
+    "mean_tokens_per_second": 36010.82574259433,
+    "repeat_tokens_per_second": [
+      35679.23656638845,
+      36342.41491880021
+    ],
+    "peak_allocated_bytes": [
+      5036882432,
+      5036882432
+    ]
+  }
+}
