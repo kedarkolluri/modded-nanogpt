@@ -1,0 +1,39 @@
+{
+  "median_ms": {
+    "native": 0.6231341198378918,
+    "rows512-serial": 0.6639898892430385,
+    "rows512-overlap": 0.6598593082030614,
+    "rows1024-serial": 0.6184612833986096,
+    "rows1024-overlap": 0.6317703024339987,
+    "rows2048-serial": 0.6051298203061195,
+    "rows2048-overlap": 0.6200815816829728,
+    "rows4096-serial": 0.629939895907515,
+    "rows4096-overlap": 0.6260171313502307
+  },
+  "trace": {
+    "native": {
+      "pack_count": 10,
+      "gemm_count": 5,
+      "cross_stream_pack_gemm_overlap_ms": 0.0,
+      "pack_gpu_ms": 1.336928,
+      "gemm_gpu_ms": 1.652192,
+      "other_gpu_ms": 0.0
+    },
+    "rows2048-serial": {
+      "pack_count": 25,
+      "gemm_count": 20,
+      "cross_stream_pack_gemm_overlap_ms": 0.0,
+      "pack_gpu_ms": 1.421728,
+      "gemm_gpu_ms": 1.524544,
+      "other_gpu_ms": 0.0
+    },
+    "rows2048-overlap": {
+      "pack_count": 25,
+      "gemm_count": 20,
+      "cross_stream_pack_gemm_overlap_ms": 0.280576,
+      "pack_gpu_ms": 1.501088,
+      "gemm_gpu_ms": 1.719712,
+      "other_gpu_ms": 0.0
+    }
+  }
+}
