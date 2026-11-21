@@ -1,0 +1,28 @@
+{
+  "torch": "2.14.0+cu130",
+  "torchao": "0.18.0",
+  "source_commit": "5f2baf9d575cf732362594c998c399902942531f",
+  "source_status": "",
+  "sources_sha256": {
+    "torchao/csrc/cuda/mx_kernels/mxfp8_extension.cpp": "862577a51dba2c7e58ad53f472a0ca2140f95b4648f0c63aad722a66f354ccac",
+    "torchao/csrc/cuda/mx_kernels/mxfp8_cuda.cu": "293f0f3443699292154fb55ab643df67cbe3c4aee718caab1f956cee13a03003",
+    "torchao/csrc/cuda/mx_kernels/mx_block_rearrange_2d_M_groups.cu": "f74787fad8c956be6c089ad35cffb3f38860b620a0f1a49bfd0a6f383f041306",
+    "torchao/csrc/cuda/mx_kernels/fused_pad_token_groups.cu": "1a15f099f9230cac5e5e29cab8852083761b414de3abd94c5bfe7f22d081e39f"
+  },
+  "cflags": [
+    "-std=c++20",
+    "-O3",
+    "-DUSE_CUDA",
+    "-DTORCH_TARGET_VERSION=0x020b000000000000"
+  ],
+  "cuda_flags": [
+    "-std=c++20",
+    "-O3",
+    "-DUSE_CUDA",
+    "-DTORCH_TARGET_VERSION=0x020b000000000000",
+    "-gencode=arch=compute_120,code=compute_120",
+    "--expt-relaxed-constexpr"
+  ],
+  "installed_extension": "/home/kedar/projects/inklings2-mini/.venv-torchao/lib/python3.12/site-packages/torchao/_C_mxfp8.so",
+  "extension_sha256": "1997118bdb153a21d22825df55725ca106609158ef1967a89ce2410e8a283cef"
+}

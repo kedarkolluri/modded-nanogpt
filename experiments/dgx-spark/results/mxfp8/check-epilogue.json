@@ -1,0 +1,1 @@
+{"passed": true, "exact_forward_and_gradient_parity": true, "eager_ms": 2.3946515653127185, "triton_ms": 0.6799456333586326}

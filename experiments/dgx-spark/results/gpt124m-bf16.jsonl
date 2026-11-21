@@ -1,0 +1,25 @@
+{"config": {"precision": "bf16", "steps": 200, "layers": 12, "width": 768, "heads": 6, "batch": 4, "sequence": 256, "seed": 42, "eval_every": 100, "eval_batches": 8, "data": "data", "output": "results/gpt124m-bf16.jsonl"}, "parameters": 123568128, "torch": "2.14.0+cu130", "gpu": "NVIDIA GB10", "native_low_precision_gemm": false}
+{"step": 0, "val_loss": 15.978562355041504, "train_seconds": 0.0}
+{"step": 1, "train_loss": 16.014385223388672, "step_seconds": 3.109933113970328}
+{"step": 11, "train_loss": 9.010590553283691, "step_seconds": 0.11159212799975649}
+{"step": 21, "train_loss": 7.350022315979004, "step_seconds": 0.11198702501133084}
+{"step": 31, "train_loss": 7.56787633895874, "step_seconds": 0.111231871007476}
+{"step": 41, "train_loss": 8.105474472045898, "step_seconds": 0.11216172901913524}
+{"step": 51, "train_loss": 8.25937557220459, "step_seconds": 0.11350392497843131}
+{"step": 61, "train_loss": 8.267984390258789, "step_seconds": 0.11268893000669777}
+{"step": 71, "train_loss": 8.507011413574219, "step_seconds": 0.11111369403079152}
+{"step": 81, "train_loss": 8.118215560913086, "step_seconds": 0.11177337600383908}
+{"step": 91, "train_loss": 7.54230260848999, "step_seconds": 0.11280704202363268}
+{"step": 100, "val_loss": 8.010775566101074, "train_seconds": 14.251291944878176}
+{"step": 101, "train_loss": 7.446150779724121, "step_seconds": 0.11177681502886117}
+{"step": 111, "train_loss": 7.810382843017578, "step_seconds": 0.11237793701002374}
+{"step": 121, "train_loss": 7.649580001831055, "step_seconds": 0.11201611196156591}
+{"step": 131, "train_loss": 6.5556640625, "step_seconds": 0.1121427200268954}
+{"step": 141, "train_loss": 7.247138023376465, "step_seconds": 0.1120570240309462}
+{"step": 151, "train_loss": 7.850707530975342, "step_seconds": 0.11337045097025111}
+{"step": 161, "train_loss": 7.087534427642822, "step_seconds": 0.11304774601012468}
+{"step": 171, "train_loss": 7.282546043395996, "step_seconds": 0.11108100501587614}
+{"step": 181, "train_loss": 7.079893112182617, "step_seconds": 0.11409934895345941}
+{"step": 191, "train_loss": 5.68196964263916, "step_seconds": 0.11188838299131021}
+{"step": 200, "val_loss": 8.464347839355469, "train_seconds": 25.493056499864906}
+{"finished": true, "tokens": 204800, "train_seconds": 25.493056499864906, "warmup_excluded_steps": 5, "steady_tokens_per_second": 9114.352823684112, "peak_allocated_bytes": 2717022208}

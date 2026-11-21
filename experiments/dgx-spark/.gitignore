@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+data/
+.venv/
+upstream/
+snapshots/
+*.pt.trace.json
+*.pt.trace.json.gz
+*.nsys-rep
+*.ncu-rep
+*.sqlite
+.venv-*/

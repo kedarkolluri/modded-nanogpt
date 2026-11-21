@@ -1,0 +1,23 @@
+W1120 19:37:31.298000 3079194 torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1120 19:37:31.325000 3079194 torch/utils/_pytree.py:630] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+{"config": {"precision": "torchao-mxfp8", "fuse_activation": false, "compile": true, "compile_mode": "default", "fp4_epilogue": "eager", "tail_precision": "mxfp8", "pack_backend": "eager", "steps": 24, "layers": 12, "width": 768, "heads": 6, "batch": 32, "sequence": 256, "seed": 42, "eval_every": 50, "eval_batches": 1, "data": "data", "nsight": true, "profile_dir": null, "profile_start": 20, "profile_steps": 3, "output": "results/torchao/nsys/ordinary.jsonl"}, "parameters": 123568128, "torch": "2.14.0+cu130", "gpu": "NVIDIA GB10", "native_low_precision_gemm": true, "torchao_version": "0.18.0", "source_sha256": {"train.py": "0ccde81130ed0e1bc63b6596344568ba097f8e85ea2f7100f01e057063b5ee6e", "native.py": "4696dd4cf4b64ede25cf20796f8aa3c44412c16703763a24413e045be5b62110", "triton_pack.py": "3141905f2cd61a1942c9075e9fc2853e3308cbd2ac36ca44b54057e3037ceaa9", "triton_pack_tiled.py": "bc88aafcaa8a07072ec0ddbbc716804cdfebb6dd6798c8988fdb950aae1d0862", "precision.py": "f21bcfca89a17a3fc19a00a43705978a9ed8e037b202917776ef02339864dd87", "record_model.py": "572734c9d2fbd4cd73880b33c09f0e857747cc655ccaa9a3bf55c524dcfa7c74", "profile_tools.py": "b183822f44bbaa19f4a34c41567438a7e09fc5da47da7cdcd65fc43726ad006f", "trace_analysis.py": "1714df5b0df4e3a6c118459210deb245238dbc930a77e806e0aaa46e69b8bf45", "epilogue.py": "e9e6a09a12421227c3b5a246c0860002299511a54278577b2dd40cc324c0bf84", "activation.py": "b96b7174d0e0fcf4623ae75bcf5c97452cbf197202b7619a8c770a3cd0c5ad86", "torchao_backend.py": "4d378e77d945bb8814eeed0636269bb8271bd8d73cd8dc241b909c6aa96aa3a8"}}
+{"step": 0, "val_loss": 15.97856330871582, "train_seconds": 0.0}
+{"step": 1, "train_loss": 15.999078750610352, "step_seconds": 8.309998076991178}
+{"step": 11, "train_loss": 7.513276100158691, "step_seconds": 0.23382212000433356}
+{"step": 21, "train_loss": 7.288005828857422, "step_seconds": 0.23489378800150007}
+Capture range started in the application.
+Capture range ended in the application.
+Generating '/tmp/nsys-report-79c0.qdstrm'
+
+[1/1] [0%                          ] ordinary.nsys-repProcessing events...
+
+[1/1] [0%                          ] ordinary.nsys-rep
+[1/1] [7%                          ] ordinary.nsys-rep
+[1/1] [==========49%               ] ordinary.nsys-rep
+[1/1] [==================77%       ] ordinary.nsys-rep
+[1/1] [========================100%] ordinary.nsys-rep
+[1/1] [========================100%] ordinary.nsys-rep
+{"step": 24, "val_loss": 7.6629767417907715, "train_seconds": 13.689385768142529}
+{"finished": true, "tokens": 196608, "train_seconds": 13.689385768142529, "warmup_excluded_steps": 5, "steady_tokens_per_second": 35131.375977810116, "peak_allocated_bytes": 5036620288, "run_wall_seconds": 25.613913092005532, "step_seconds": [8.309998076991178, 0.2501497649936937, 0.23264635598752648, 0.23250885104062036, 0.23362716002156958, 0.23286710801767185, 0.23265350802103058, 0.23434666596585885, 0.23149468703195453, 0.2338798160199076, 0.23382212000433356, 0.2343973380047828, 0.233396757976152, 0.232770340051502, 0.2337962319725193, 0.2319861290161498, 0.2324988499749452, 0.23332243802724406, 0.2328975570271723, 0.2330705969943665, 0.23489378800150007, 0.2316517599974759, 0.23396087205037475, 0.23274899495299906], "dynamo_counters": {"stats": {"calls_captured": 2138, "unique_graphs": 6}, "aot_autograd": {"total": 6, "autograd_cache_bypass": 3, "ok": 6, "autograd_cache_hit": 3}, "inductor": {"pattern_matcher_count": 2795, "pattern_matcher_nodes": 3469, "triton_bundler_load_static_autotuner": 100, "async_compile_cache_miss": 323, "async_compile_cache_hit": 195, "extern_calls": 1040, "fxgraph_cache_hit": 7}, "frames": {"total": 3, "ok": 3}}}
+Generated:
+	/home/kedar/projects/inklings2-mini/results/torchao/nsys/ordinary.nsys-rep

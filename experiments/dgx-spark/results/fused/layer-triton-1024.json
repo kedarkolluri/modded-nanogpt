@@ -1,0 +1,14 @@
+{
+  "shape": [
+    1024,
+    3072,
+    768
+  ],
+  "pack_backend": "triton",
+  "bf16_gemm_ms": 0.05846843317461511,
+  "fp4_pack_inputs_ms": 0.05818843298281232,
+  "nvfp4_gemm_only_ms": 0.06221189978532493,
+  "mxfp8_sr_pack_inputs_ms": 0.06509029966158171,
+  "mxfp8_gemm_only_ms": 0.0352219659058998,
+  "note": "GEMM-only times exclude packing and outer-scale application; no training speedup implied."
+}

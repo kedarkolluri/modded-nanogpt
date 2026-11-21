@@ -1,0 +1,46 @@
+{
+  "bf16": {
+    "mean_tokens_per_second": 37650.583566048575,
+    "repeat_tokens_per_second": [
+      37724.273254434636,
+      37576.893877662515
+    ],
+    "peak_allocated_bytes": [
+      5459261952,
+      5459261952
+    ]
+  },
+  "ours": {
+    "mean_tokens_per_second": 35919.37063532787,
+    "repeat_tokens_per_second": [
+      35896.66894827843,
+      35942.07232237731
+    ],
+    "peak_allocated_bytes": [
+      5037537792,
+      5037537792
+    ]
+  },
+  "torchao-fused": {
+    "mean_tokens_per_second": 35827.21179428573,
+    "repeat_tokens_per_second": [
+      35866.626503186766,
+      35787.797085384685
+    ],
+    "peak_allocated_bytes": [
+      5038324224,
+      5036358144
+    ]
+  },
+  "torchao": {
+    "mean_tokens_per_second": 35116.35395355738,
+    "repeat_tokens_per_second": [
+      35086.89405961736,
+      35145.81384749739
+    ],
+    "peak_allocated_bytes": [
+      5036620288,
+      5036620288
+    ]
+  }
+}

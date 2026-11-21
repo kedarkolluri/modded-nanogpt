@@ -1,0 +1,15 @@
+{"config": {"precision": "fp4-native-sr", "pack_backend": "triton-tiled", "steps": 100, "layers": 12, "width": 768, "heads": 6, "batch": 4, "sequence": 256, "seed": 42, "eval_every": 50, "eval_batches": 8, "data": "data", "output": "results/fused/b4-fp4-native-sr-tiled.jsonl"}, "parameters": 123568128, "torch": "2.14.0+cu130", "gpu": "NVIDIA GB10", "native_low_precision_gemm": true, "source_sha256": {"train.py": "c5d5c04dec6a1a8747db6f82637e86333df93e483962892c014ff1b465671a6f", "native.py": "eab48c50617ed0bfc69c8fc60eb59beb398e00dc526ee8fc048178d4434972cd", "triton_pack.py": "1872b9a9058e7266b83c66b2d7a9ad4f698936288170ded962cc772e4ce44b74", "triton_pack_tiled.py": "1de07f47ac28d4ae140ee10cf01959f8193f13ddcde97ff9a140d263bec65342", "precision.py": "f21bcfca89a17a3fc19a00a43705978a9ed8e037b202917776ef02339864dd87", "record_model.py": "572734c9d2fbd4cd73880b33c09f0e857747cc655ccaa9a3bf55c524dcfa7c74"}}
+{"step": 0, "val_loss": 15.978562355041504, "train_seconds": 0.0}
+{"step": 1, "train_loss": 16.014385223388672, "step_seconds": 1.6162373410188593}
+{"step": 11, "train_loss": 9.54262924194336, "step_seconds": 0.12384353799279779}
+{"step": 21, "train_loss": 7.309388160705566, "step_seconds": 0.11877976503456011}
+{"step": 31, "train_loss": 7.639496326446533, "step_seconds": 0.11811982799554244}
+{"step": 41, "train_loss": 8.124674797058105, "step_seconds": 0.11877282202476636}
+{"step": 50, "val_loss": 8.223432540893555, "train_seconds": 7.448332880157977}
+{"step": 51, "train_loss": 8.254966735839844, "step_seconds": 0.1173513779649511}
+{"step": 61, "train_loss": 8.252386093139648, "step_seconds": 0.11665259295841679}
+{"step": 71, "train_loss": 8.52290153503418, "step_seconds": 0.12125785194803029}
+{"step": 81, "train_loss": 8.187816619873047, "step_seconds": 0.11952458298765123}
+{"step": 91, "train_loss": 7.642782211303711, "step_seconds": 0.1169368969858624}
+{"step": 100, "val_loss": 8.055131912231445, "train_seconds": 13.390775453939568}
+{"finished": true, "tokens": 102400, "train_seconds": 13.390775453939568, "warmup_excluded_steps": 5, "steady_tokens_per_second": 8622.793602278281, "peak_allocated_bytes": 2719905792}

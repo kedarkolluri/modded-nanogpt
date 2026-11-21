@@ -1,0 +1,15 @@
+{"config": {"precision": "bf16", "pack_backend": "triton", "steps": 100, "layers": 12, "width": 768, "heads": 6, "batch": 16, "sequence": 256, "seed": 42, "eval_every": 50, "eval_batches": 2, "data": "data", "output": "results/fused/b16-bf16.jsonl"}, "parameters": 123568128, "torch": "2.14.0+cu130", "gpu": "NVIDIA GB10", "native_low_precision_gemm": false, "source_sha256": {"train.py": "3642c41ec8e46af7bffdf1ceb41b781dbc3347984f30faf32bde5b6a3cc7fbc7", "native.py": "bcd4e21c6563dd4c1774d08dee79255c834441755c95e04afb0ed698dac2ff6d", "triton_pack.py": "1872b9a9058e7266b83c66b2d7a9ad4f698936288170ded962cc772e4ce44b74", "precision.py": "f21bcfca89a17a3fc19a00a43705978a9ed8e037b202917776ef02339864dd87", "record_model.py": "572734c9d2fbd4cd73880b33c09f0e857747cc655ccaa9a3bf55c524dcfa7c74"}}
+{"step": 0, "val_loss": 15.97856330871582, "train_seconds": 0.0}
+{"step": 1, "train_loss": 16.006511688232422, "step_seconds": 1.0762074750382453}
+{"step": 11, "train_loss": 7.705113410949707, "step_seconds": 0.24784789100522175}
+{"step": 21, "train_loss": 7.556300163269043, "step_seconds": 0.24833115498768166}
+{"step": 31, "train_loss": 7.608516216278076, "step_seconds": 0.2482557960320264}
+{"step": 41, "train_loss": 7.09002685546875, "step_seconds": 0.2496897029923275}
+{"step": 50, "val_loss": 8.064167022705078, "train_seconds": 13.269955373893026}
+{"step": 51, "train_loss": 5.796237945556641, "step_seconds": 0.24610923003638163}
+{"step": 61, "train_loss": 7.524682998657227, "step_seconds": 0.2465383670059964}
+{"step": 71, "train_loss": 8.009239196777344, "step_seconds": 0.24756918498314917}
+{"step": 81, "train_loss": 7.846935272216797, "step_seconds": 0.2467945430544205}
+{"step": 91, "train_loss": 6.9427103996276855, "step_seconds": 0.2484299869975075}
+{"step": 100, "val_loss": 7.471488952636719, "train_seconds": 25.626707387156785}
+{"finished": true, "tokens": 409600, "train_seconds": 25.626707387156785, "warmup_excluded_steps": 5, "steady_tokens_per_second": 16529.38333079654, "peak_allocated_bytes": 6402997248}

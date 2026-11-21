@@ -1,0 +1,21 @@
+{"config": {"precision": "bf16", "fuse_activation": true, "compile": true, "compile_mode": "default", "fp4_epilogue": "eager", "tail_precision": "mxfp8", "pack_backend": "triton-tiled", "steps": 24, "layers": 12, "width": 768, "heads": 6, "batch": 32, "sequence": 256, "seed": 42, "eval_every": 50, "eval_batches": 1, "data": "data", "nsight": true, "profile_dir": null, "profile_start": 20, "profile_steps": 3, "output": "results/compile/nsys/bf16.jsonl"}, "parameters": 123568128, "torch": "2.14.0+cu130", "gpu": "NVIDIA GB10", "native_low_precision_gemm": false, "source_sha256": {"train.py": "4b78bdee81d8351e2aee02a8fd88ffd2f0ef70d0c68d879020f3e739f145317f", "native.py": "4696dd4cf4b64ede25cf20796f8aa3c44412c16703763a24413e045be5b62110", "triton_pack.py": "3141905f2cd61a1942c9075e9fc2853e3308cbd2ac36ca44b54057e3037ceaa9", "triton_pack_tiled.py": "bc88aafcaa8a07072ec0ddbbc716804cdfebb6dd6798c8988fdb950aae1d0862", "precision.py": "f21bcfca89a17a3fc19a00a43705978a9ed8e037b202917776ef02339864dd87", "record_model.py": "572734c9d2fbd4cd73880b33c09f0e857747cc655ccaa9a3bf55c524dcfa7c74", "profile_tools.py": "b183822f44bbaa19f4a34c41567438a7e09fc5da47da7cdcd65fc43726ad006f", "trace_analysis.py": "1714df5b0df4e3a6c118459210deb245238dbc930a77e806e0aaa46e69b8bf45", "epilogue.py": "e9e6a09a12421227c3b5a246c0860002299511a54278577b2dd40cc324c0bf84", "activation.py": "b96b7174d0e0fcf4623ae75bcf5c97452cbf197202b7619a8c770a3cd0c5ad86"}}
+{"step": 0, "val_loss": 15.97856330871582, "train_seconds": 0.0}
+{"step": 1, "train_loss": 15.999078750610352, "step_seconds": 4.152615754050203}
+{"step": 11, "train_loss": 7.49245548248291, "step_seconds": 0.21655197301879525}
+{"step": 21, "train_loss": 7.304953575134277, "step_seconds": 0.21969126700423658}
+Capture range started in the application.
+Capture range ended in the application.
+Generating '/tmp/nsys-report-03ef.qdstrm'
+
+[1/1] [0%                          ] bf16-fused.nsys-repProcessing events...
+
+[1/1] [0%                          ] bf16-fused.nsys-rep
+[1/1] [9%                          ] bf16-fused.nsys-rep
+[1/1] [============56%             ] bf16-fused.nsys-rep
+[1/1] [==================77%       ] bf16-fused.nsys-rep
+[1/1] [========================100%] bf16-fused.nsys-rep
+[1/1] [========================100%] bf16-fused.nsys-rep
+{"step": 24, "val_loss": 7.6087541580200195, "train_seconds": 9.154544303019065}
+{"finished": true, "tokens": 196608, "train_seconds": 9.154544303019065, "warmup_excluded_steps": 5, "steady_tokens_per_second": 37809.17682533037, "peak_allocated_bytes": 5459261952, "run_wall_seconds": 13.835864669992588, "step_seconds": [4.152615754050203, 0.23300524294609204, 0.21744564198888838, 0.21754529100144282, 0.21725983294891194, 0.21673471096437424, 0.21601961902342737, 0.2151364460005425, 0.21706760703818873, 0.21630886802449822, 0.21655197301879525, 0.21577120095025748, 0.21594905701931566, 0.21474999602651224, 0.21693453402258456, 0.2164533959585242, 0.21532334201037884, 0.21624707395676523, 0.21684842102695256, 0.21636961901094764, 0.21969126700423658, 0.21763135201763362, 0.216474739019759, 0.22040931798983365], "dynamo_counters": {"stats": {"calls_captured": 1994, "unique_graphs": 6}, "aot_autograd": {"total": 6, "autograd_cache_hit": 5, "ok": 6, "autograd_cache_bypass": 1}, "inductor": {"triton_bundler_load_static_autotuner": 74, "async_compile_cache_miss": 225, "async_compile_cache_hit": 143, "pattern_matcher_count": 639, "pattern_matcher_nodes": 833, "extern_calls": 626, "fxgraph_cache_hit": 7}, "frames": {"total": 3, "ok": 3}}}
+Generated:
+	/home/kedar/projects/inklings2-mini/results/compile/nsys/bf16-fused.nsys-rep

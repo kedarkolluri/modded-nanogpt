@@ -1,0 +1,56 @@
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                          phase/forward         0.00%       0.000us         0.00%       0.000us       0.000us     333.301ms        30.85%     333.301ms     111.100ms             3  
+                                               aten::mm         1.69%      19.707ms        23.49%     273.321ms      97.025us     285.714ms        26.44%     285.714ms     101.425us          2817  
+                                            aten::copy_         0.27%       3.094ms         0.88%      10.262ms       8.249us     199.932ms        18.50%     199.932ms     160.717us          1244  
+                               Optimizer.step#Muon.step         0.00%       0.000us         0.00%       0.000us       0.000us     174.591ms        16.16%     174.591ms      58.197ms             3  
+## Call CompiledFxGraph fvw4x3vk3y5ewcgynvoy2ichx7jg...         0.00%       0.000us         0.00%       0.000us       0.000us     105.799ms         9.79%     105.799ms     587.772us           180  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us     100.320ms         9.28%     100.320ms     171.488us           585  
+void at::native::unrolled_elementwise_kernel<at::nat...         0.00%       0.000us         0.00%       0.000us       0.000us      90.399ms         8.37%      90.399ms     176.216us           513  
+                       aten::_log_softmax_backward_data         0.00%      55.121us         0.01%      94.882us      31.627us      89.189ms         8.25%      89.189ms      29.730ms             3  
+void at::native::(anonymous namespace)::cunn_SoftMax...         0.00%       0.000us         0.00%       0.000us       0.000us      89.189ms         8.25%      89.189ms      29.730ms             3  
+                                             aten::add_         0.17%       2.029ms         3.11%      36.186ms      45.516us      84.457ms         7.82%      84.457ms     106.236us           795  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      67.417ms         6.24%      67.417ms     116.437us           579  
+                         aten::_fused_rms_norm_backward         0.08%     948.055us         0.19%       2.179ms      14.822us      49.884ms         4.62%      49.884ms     339.347us           147  
+void at::native::(anonymous namespace)::layer_norm_g...         0.00%       0.000us         0.00%       0.000us       0.000us      49.884ms         4.62%      49.884ms     339.347us           147  
+                                     aten::_log_softmax         0.00%      42.464us         0.01%      71.248us      23.749us      49.556ms         4.59%      49.556ms      16.519ms             3  
+void at::native::(anonymous namespace)::cunn_SoftMax...         0.00%       0.000us         0.00%       0.000us       0.000us      49.556ms         4.59%      49.556ms      16.519ms             3  
+nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_...         0.00%       0.000us         0.00%       0.000us       0.000us      41.480ms         3.84%      41.480ms       1.064ms            39  
+nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_...         0.00%       0.000us         0.00%       0.000us       0.000us      36.887ms         3.41%      36.887ms     512.314us            72  
+                        aten::_flash_attention_backward         0.05%     555.137us         0.15%       1.785ms      49.585us      36.324ms         3.36%      36.324ms       1.009ms            36  
+void cutlass::Kernel2<cutlass_80_tensorop_bf16_s1681...         0.00%       0.000us         0.00%       0.000us       0.000us      36.289ms         3.36%      36.289ms      53.054us           684  
+                                            aten::fill_         0.26%       3.011ms         0.35%       4.082ms      26.680us      35.277ms         3.26%      35.277ms     230.570us           153  
+## Call CompiledFxGraph ff5inqkfky2omoi5xrhofg7vkozj...         0.00%       0.000us         0.00%       0.000us       0.000us      34.881ms         3.23%      34.881ms     968.917us            36  
+                                            aten::addmm         0.73%       8.487ms         9.89%     115.102ms     106.576us      33.816ms         3.13%      33.816ms      31.311us          1080  
+                                  aten::_fused_rms_norm         0.14%       1.613ms         0.26%       3.051ms      20.756us      32.531ms         3.01%      32.531ms     221.301us           147  
+void at::native::(anonymous namespace)::vectorized_l...         0.00%       0.000us         0.00%       0.000us       0.000us      32.531ms         3.01%      32.531ms     221.301us           147  
+nvjet_sm121_tst_mma_128x208x32_4_32x104x32_tmaAB_bz_...         0.00%       0.000us         0.00%       0.000us       0.000us      31.863ms         2.95%      31.863ms     442.541us            72  
+                                              aten::mul         0.24%       2.767ms         0.46%       5.400ms       9.374us      31.537ms         2.92%      31.537ms      54.752us           576  
+void at::native::elementwise_kernel<128, 4, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us      31.537ms         2.92%      31.537ms      54.752us           576  
+                                         module/lm_head         0.00%       0.000us         0.00%       0.000us       0.000us      29.876ms         2.77%      29.876ms       9.959ms             3  
+                                              aten::add         0.19%       2.191ms         1.31%      15.215ms      35.221us      29.519ms         2.73%      29.519ms      68.331us           432  
+void at::native::unrolled_elementwise_kernel<at::nat...         0.00%       0.000us         0.00%       0.000us       0.000us      28.926ms         2.68%      28.926ms     100.439us           288  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      28.346ms         2.62%      28.346ms       3.150ms             9  
+         triton_red_fused__to_copy_linalg_vector_norm_0         0.08%     980.485us         1.44%      16.783ms      77.700us      24.973ms         2.31%      24.973ms     115.616us           216  
+         triton_red_fused__to_copy_linalg_vector_norm_0         0.00%       0.000us         0.00%       0.000us       0.000us      24.973ms         2.31%      24.973ms     115.616us           216  
+                               BF16ReluSquareFnBackward         0.06%     712.307us         0.23%       2.677ms      74.362us      24.248ms         2.24%      24.248ms     673.547us            36  
+                                      _relu_square_grad         0.00%       0.000us         0.00%       0.000us       0.000us      24.248ms         2.24%      24.248ms     673.547us            36  
+                         activation/activation_backward         0.00%       0.000us         0.00%       0.000us       0.000us      24.248ms         2.24%      24.248ms     673.547us            36  
+nvjet_sm121_tst_mma_128x96x64_3_64x24x64_tmaAB_bz_NT...         0.00%       0.000us         0.00%       0.000us       0.000us      22.638ms         2.10%      22.638ms     157.207us           144  
+void pytorch_flash::flash_bwd_dq_dk_dv_loop_seqk_par...         0.00%       0.000us         0.00%       0.000us       0.000us      22.105ms         2.05%      22.105ms     614.039us            36  
+void cutlass::Kernel2<cutlass_80_tensorop_bf16_s1681...         0.00%       0.000us         0.00%       0.000us       0.000us      20.303ms         1.88%      20.303ms     563.975us            36  
+void cutlass::Kernel2<cutlass_80_tensorop_bf16_s1681...         0.00%       0.000us         0.00%       0.000us       0.000us      19.811ms         1.83%      19.811ms     137.576us           144  
+void cutlass::Kernel2<cutlass_80_tensorop_bf16_s1681...         0.00%       0.000us         0.00%       0.000us       0.000us      19.801ms         1.83%      19.801ms       6.600ms             3  
+nvjet_sm121_tst_mma_256x112x64_2_64x56x64_tmaAB_bz_N...         0.00%       0.000us         0.00%       0.000us       0.000us      19.607ms         1.81%      19.607ms       6.536ms             3  
+void cutlass::Kernel2<cutlass_80_tensorop_bf16_s1681...         0.00%       0.000us         0.00%       0.000us       0.000us      18.313ms         1.69%      18.313ms     127.174us           144  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      17.633ms         1.63%      17.633ms      48.980us           360  
+                                       BF16ReluSquareFn         0.15%       1.785ms         0.18%       2.147ms      59.630us      16.008ms         1.48%      16.008ms     444.655us            36  
+                                           _relu_square         0.00%       0.000us         0.00%       0.000us       0.000us      16.008ms         1.48%      16.008ms     444.655us            36  
+                              Optimizer.step#AdamW.step         0.00%       0.000us         0.00%       0.000us       0.000us      14.668ms         1.36%      14.668ms       4.889ms             3  
+                                    aten::_fused_adamw_         0.00%      38.448us         0.01%      65.696us      21.899us      14.646ms         1.36%      14.646ms       4.882ms             3  
+void at::native::(anonymous namespace)::multi_tensor...         0.00%       0.000us         0.00%       0.000us       0.000us      14.646ms         1.36%      14.646ms       4.882ms             3  
+nvjet_sm121_tst_mma_128x96x64_3_64x24x64_tmaAB_bz_TN...         0.00%       0.000us         0.00%       0.000us       0.000us      14.007ms         1.30%      14.007ms      43.230us           324  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 1.163s
+Self CUDA time total: 1.080s

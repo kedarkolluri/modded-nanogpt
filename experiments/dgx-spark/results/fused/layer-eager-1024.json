@@ -1,0 +1,14 @@
+{
+  "shape": [
+    1024,
+    3072,
+    768
+  ],
+  "pack_backend": "eager",
+  "bf16_gemm_ms": 0.05402413274471959,
+  "fp4_pack_inputs_ms": 1.8515604664571583,
+  "nvfp4_gemm_only_ms": 0.05334626572827498,
+  "mxfp8_sr_pack_inputs_ms": 1.6013475658837706,
+  "mxfp8_gemm_only_ms": 0.03410730084093908,
+  "note": "GEMM-only times exclude packing and outer-scale application; no training speedup implied."
+}

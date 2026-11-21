@@ -1,0 +1,1 @@
+{"passed": true, "packed_bitwise_parity_cases": 4, "exact_projection_and_mlp_gradients": true, "rng_consumption_parity": true, "shape": [8192, 3072], "separate_activation_pack_ms": 1.4850023319013417, "fused_activation_pack_ms": 0.5512691335752606}

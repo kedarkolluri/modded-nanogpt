@@ -1,0 +1,6 @@
+Collecting torchao==0.18.0
+  Downloading torchao-0.18.0-py3-none-any.whl.metadata (21 kB)
+Downloading torchao-0.18.0-py3-none-any.whl (1.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.4/1.4 MB 2.0 MB/s eta 0:00:00
+Installing collected packages: torchao
+Successfully installed torchao-0.18.0

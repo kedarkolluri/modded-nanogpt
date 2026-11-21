@@ -1,0 +1,34 @@
+==PROF== Connected to process 2891680 (/usr/bin/python3.12)
+==PROF== Profiling "_fp8" - 0: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8" - 1: 0%....50%....100% - 10 passes
+==PROF== Profiling "cutlass3x_sm120_bstensorop_s1..." - 2: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8" - 3: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8" - 4: 0%....50%....100% - 10 passes
+==PROF== Profiling "cutlass3x_sm120_bstensorop_s1..." - 5: 0%....50%....100% - 10 passes
+==PROF== Profiling "distribution_elementwise_grid..." - 6: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8" - 7: 0%....50%....100% - 10 passes
+==PROF== Profiling "distribution_elementwise_grid..." - 8: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8_transpose" - 9: 0%....50%....100% - 10 passes
+==PROF== Profiling "cutlass3x_sm120_bstensorop_s1..." - 10: 0%....50%....100% - 10 passes
+==PROF== Profiling "distribution_elementwise_grid..." - 11: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8_transpose" - 12: 0%....50%....100% - 10 passes
+==PROF== Profiling "distribution_elementwise_grid..." - 13: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8_transpose" - 14: 0%....50%....100% - 10 passes
+==PROF== Profiling "cutlass3x_sm120_bstensorop_s1..." - 15: 0%....50%....100% - 10 passes
+==PROF== Profiling "_relu_square_grad" - 16: 0%....50%....100% - 10 passes
+==PROF== Profiling "unrolled_elementwise_kernel" - 17: 0%....50%....100% - 10 passes
+==PROF== Profiling "distribution_elementwise_grid..." - 18: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8" - 19: 0%....50%....100% - 10 passes
+==PROF== Profiling "distribution_elementwise_grid..." - 20: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8_transpose" - 21: 0%....50%....100% - 10 passes
+==PROF== Profiling "cutlass3x_sm120_bstensorop_s1..." - 22: 0%....50%....100% - 10 passes
+==PROF== Profiling "distribution_elementwise_grid..." - 23: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8_transpose" - 24: 0%....50%....100% - 10 passes
+==PROF== Profiling "distribution_elementwise_grid..." - 25: 0%....50%....100% - 10 passes
+==PROF== Profiling "_fp8_transpose" - 26: 0%....50%....100% - 10 passes
+==PROF== Profiling "cutlass3x_sm120_bstensorop_s1..." - 27: 0%....50%....100% - 10 passes
+==PROF== Profiling "unrolled_elementwise_kernel" - 28: 0%....50%....100% - 10 passes
+==PROF== Profiling "unrolled_elementwise_kernel" - 29: 0%....50%....100% - 10 passes
+{'precision': 'mxfp8', 'shape': [32, 256, 768], 'finite': True}
+==PROF== Disconnected from process 2891680
+==PROF== Report: /home/kedar/projects/inklings2-mini/results/nsight/mxfp8-mlp.ncu-rep

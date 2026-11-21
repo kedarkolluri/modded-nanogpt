@@ -1,0 +1,36 @@
+{
+  "platform": "Linux-7.0.0-1025-nvidia-aarch64-with-glibc2.39",
+  "machine": "aarch64",
+  "torch": "2.14.0",
+  "torchao": null,
+  "triton": "3.8.0",
+  "transformer-engine": null,
+  "nvidia_smi": "Fri Nov 20 17:53:52 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GB10                    On  |   0000000F:01:00.0 Off |                  N/A |\n| N/A   48C    P8              4W /  N/A  | Not Supported          |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A            2768      G   /usr/lib/xorg/Xorg                       85MiB |\n|    0   N/A  N/A            3546      G   /usr/bin/gnome-shell                     18MiB |\n+-----------------------------------------------------------------------------------------+\n",
+  "cuda_runtime": "13.0",
+  "gpu": "NVIDIA GB10",
+  "compute_capability": [
+    12,
+    1
+  ],
+  "memory_bytes": 130660777984,
+  "bf16": {
+    "status": "executed",
+    "ms": 0.11220909946132451,
+    "relative_l2_error": 0.0,
+    "finite": true
+  },
+  "fp8_tensor_scaled": {
+    "status": "executed",
+    "ms": 0.06235059991013259,
+    "relative_l2_error": 0.037741661071777344,
+    "finite": true
+  },
+  "nvfp4": {
+    "status": "unverified",
+    "reason": "Needs a tested GB10 block-scaled backend"
+  },
+  "mxfp8": {
+    "status": "unverified",
+    "reason": "Tensor-scaled FP8 does not establish MXFP8 support"
+  }
+}
