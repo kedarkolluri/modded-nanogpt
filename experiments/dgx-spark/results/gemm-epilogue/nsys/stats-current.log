@@ -1,0 +1,8 @@
+Generating SQLite file results/gemm-epilogue/nsys/current.sqlite from results/gemm-epilogue/nsys/current.nsys-rep
+Processing [results/gemm-epilogue/nsys/current.sqlite] with [/opt/nvidia/nsight-systems/2025.3.2/host-linux-armv8/reports/cuda_gpu_kern_sum.py] to [results/gemm-epilogue/nsys/current_cuda_gpu_kern_sum.csv]... PROCESSED
+
+Processing [results/gemm-epilogue/nsys/current.sqlite] with [/opt/nvidia/nsight-systems/2025.3.2/host-linux-armv8/reports/cuda_kern_exec_sum.py] to [results/gemm-epilogue/nsys/current_cuda_kern_exec_sum.csv]... PROCESSED
+
+Processing [results/gemm-epilogue/nsys/current.sqlite] with [/opt/nvidia/nsight-systems/2025.3.2/host-linux-armv8/reports/nvtx_gpu_proj_sum.py] to [results/gemm-epilogue/nsys/current_nvtx_gpu_proj_sum.csv]... PROCESSED
+
+Processing [results/gemm-epilogue/nsys/current.sqlite] with [/opt/nvidia/nsight-systems/2025.3.2/host-linux-armv8/reports/cuda_api_sum.py] to [results/gemm-epilogue/nsys/current_cuda_api_sum.csv]... PROCESSED

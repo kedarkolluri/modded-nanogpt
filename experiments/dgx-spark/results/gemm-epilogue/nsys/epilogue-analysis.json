@@ -1,0 +1,20 @@
+{
+  "captured_steps": 3,
+  "kernel_count": 9084,
+  "unmatched_kernels": 0,
+  "phase_kernel_ms_per_step": {
+    "phase/forward": 61.87925333333334,
+    "phase/backward": 100.24993066666667,
+    "phase/optimizer": 58.325447
+  },
+  "phase_kernel_count_per_step": {
+    "phase/forward": 306.0,
+    "phase/backward": 404.0,
+    "phase/optimizer": 2318.0
+  },
+  "kernel_sum_ms_per_step": 220.454631,
+  "kernel_busy_union_ms_per_step": 220.31236966666665,
+  "first_to_last_kernel_span_ms_per_step": 226.77712,
+  "no_kernel_running_ms_per_step": 6.464750333333333,
+  "note": "No-kernel intervals are not necessarily CPU launch stalls; includes synchronization, memory operations, and step boundaries. Profiling adds overhead."
+}

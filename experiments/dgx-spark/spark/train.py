@@ -29,6 +29,8 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--precision', choices=['bf16', 'fp4-reference-sr', 'fp4-reference-nearest', 'fp4-native-sr', 'fp4-native-nearest', 'mxfp8-native-sr', 'mxfp8-native-nearest', 'torchao-mxfp8'], default='bf16')
     p.add_argument('--fuse-activation', action='store_true')
+    p.add_argument('--pipeline-mxfp8', action='store_true', help='Experimental operand quantization inside first-projection GEMM loop')
+    p.add_argument('--fuse-mlp-epilogue', action='store_true', help='Experimental native MXFP8 GEMM/activation/packing kernel')
     p.add_argument('--compile', action='store_true', help='Compile model forward and backward with Inductor')
     p.add_argument('--compile-mode', choices=['default', 'max-autotune-no-cudagraphs'], default='default')
     p.add_argument('--fp4-epilogue', choices=['eager', 'triton'], default='eager')
@@ -57,6 +59,8 @@ def main():
     if args.fuse_activation and not (args.precision in ('bf16', 'torchao-mxfp8') or
             (args.precision.startswith('mxfp8-native') and args.pack_backend != 'eager')):
         p.error('Activation fusion supports BF16 or native MXFP8 with Triton packing')
+    if args.fuse_mlp_epilogue and not (args.precision.startswith('mxfp8-native') and args.pack_backend != 'eager'):
+        p.error('MLP epilogue fusion requires native MXFP8 and Triton packing')
     if args.nsight and args.profile_dir:
         p.error('Use Nsight and PyTorch profiling in separate runs')
     profiler = (NsightCapture(args.profile_start, args.profile_steps) if args.nsight else
@@ -84,6 +88,14 @@ def main():
     if args.fuse_activation and args.precision != 'torchao-mxfp8':
         from activation import replace_activation_mlps
         replace_activation_mlps(model)
+    if args.fuse_mlp_epilogue:
+        from fused_mlp_epilogue import replace_mlps as replace_epilogue
+        replace_epilogue(model)
+    if args.pipeline_mxfp8:
+        if not args.precision.startswith('mxfp8-native') or args.fuse_mlp_epilogue:
+            raise ValueError('Operand pipeline requires native MXFP8 and cannot combine with epilogue experiment')
+        from pipelined_mxfp8 import replace_mlps as replace_pipeline
+        replace_pipeline(model)
     # Match initialization/data across modes. Separate RNG for quantization.
     torch.cuda.manual_seed_all(args.seed + 1000)
     optimizers = [
@@ -107,7 +119,7 @@ def main():
           'native_low_precision_gemm': args.precision.startswith(('fp4-native', 'mxfp8-native', 'torchao-mxfp8')),
           'torchao_version': __import__('torchao').__version__ if args.precision == 'torchao-mxfp8' else None,
           'source_sha256': {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py', 'epilogue.py', 'activation.py', 'torchao_backend.py')}})
+                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py', 'epilogue.py', 'activation.py', 'torchao_backend.py', 'fused_mlp_epilogue.py', 'pipelined_mxfp8.py')}})
     def batch(data, offset):
         z = torch.from_numpy(np.array(data[offset:offset+count+1], dtype=np.int64)).cuda()
         return z[:-1].view(args.batch, args.sequence), z[1:].view(args.batch, args.sequence)

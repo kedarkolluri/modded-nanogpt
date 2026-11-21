@@ -1,0 +1,99 @@
+[3522116] python3.12@127.0.0.1
+  _gemm_pack (256, 24, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.1
+    Section: GPU Speed Of Light Throughput
+    ----------------------- ----------- ------------
+    Metric Name             Metric Unit Metric Value
+    ----------------------- ----------- ------------
+    SM Frequency                    Ghz         2.14
+    Elapsed Cycles                cycle      1976443
+    Memory Throughput                 %        50.20
+    Duration                         us          924
+    L1/TEX Cache Throughput           %        24.42
+    L2 Cache Throughput               %        50.20
+    SM Active Cycles              cycle   2084166.12
+    Compute (SM) Throughput           %        19.91
+    ----------------------- ----------- ------------
+
+    OPT   This workload exhibits low compute throughput and memory bandwidth utilization relative to the peak
+          performance of this device. Achieved compute throughput and/or memory bandwidth below 60.0% of peak
+          typically indicate latency issues. Look at Scheduler Statistics and Warp State Statistics for potential
+          reasons.
+
+    Section: Memory Workload Analysis
+    -------------------------------------- ----------- ------------
+    Metric Name                            Metric Unit Metric Value
+    -------------------------------------- ----------- ------------
+    Local Memory Spilling Requests                                0
+    Local Memory Spilling Request Overhead           %      no data
+    Mem Busy                                         %        50.20
+    Max Bandwidth                                    %        43.10
+    L1/TEX Hit Rate                                  %         6.90
+    L2 Persisting Size                           Mbyte         4.72
+    L2 Compression Success Rate                      %            0
+    L2 Compression Ratio                                          0
+    L2 Compression Input Sectors                sector            0
+    L2 Hit Rate                                      %        82.44
+    Mem Pipes Busy                                   %        19.75
+    -------------------------------------- ----------- ------------
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   128
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   6144
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread             168
+    Shared Memory Configuration Size           Kbyte          102.40
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block      Kbyte/block           21.12
+    Static Shared Memory Per Block        byte/block               0
+    # SMs                                         SM              48
+    Stack Size                                                  1024
+    Threads                                   thread          786432
+    # TPCs                                                        24
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                               42.67
+    -------------------------------- --------------- ---------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            3
+    Block Limit Shared Mem                block            4
+    Block Limit Warps                     block           12
+    Theoretical Active Warps per SM        warp           12
+    Theoretical Occupancy                     %           25
+    Achieved Occupancy                        %        24.76
+    Achieved Active Warps Per SM           warp        11.88
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 75%
+          The 3.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the
+          hardware maximum of 12. This kernel's theoretical occupancy (25.0%) is limited by the number of required
+          registers.
+
+    Section: GPU and Memory Workload Distribution
+    -------------------------- ----------- ------------
+    Metric Name                Metric Unit Metric Value
+    -------------------------- ----------- ------------
+    Average L1 Active Cycles         cycle   2084166.12
+    Total L1 Elapsed Cycles          cycle     94818084
+    Average L2 Active Cycles         cycle   1872215.25
+    Total L2 Elapsed Cycles          cycle     28356240
+    Average SM Active Cycles         cycle   2084166.12
+    Total SM Elapsed Cycles          cycle     94818084
+    Average SMSP Active Cycles       cycle   1982478.28
+    Total SMSP Elapsed Cycles        cycle    379272336
+    -------------------------- ----------- ------------
