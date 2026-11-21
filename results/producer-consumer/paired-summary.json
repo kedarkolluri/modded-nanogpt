@@ -1,0 +1,34 @@
+[
+  {
+    "shape": [
+      8192,
+      3072,
+      768
+    ],
+    "median_ms": {
+      "native": 0.6326125258285749,
+      "config2-serial": 3.2911559306658233,
+      "config2-overlap": 2.9876228644170726,
+      "config9-serial": 4.671184325218201,
+      "config9-overlap": 7.614291614655293
+    },
+    "config2_overlap_speedup_vs_serial": 1.1015968480707066,
+    "config2_overlap_speedup_vs_native": 0.21174443848420824
+  },
+  {
+    "shape": [
+      1024,
+      1024,
+      4096
+    ],
+    "median_ms": {
+      "native": 0.5031726119891267,
+      "config2-serial": 1.1901332324960319,
+      "config2-overlap": 1.2740326530572355,
+      "config9-serial": 1.5571206154731603,
+      "config9-overlap": 1.946758076391947
+    },
+    "config2_overlap_speedup_vs_serial": 0.9341465696661116,
+    "config2_overlap_speedup_vs_native": 0.39494483189397644
+  }
+]

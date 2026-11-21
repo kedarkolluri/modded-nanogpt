@@ -278,3 +278,11 @@ See [weight reuse measurements](results/reuse-mxfp8/REPORT.md).
 accounts for every captured kernel in matched BF16/current-MXFP8/weight-reuse
 profiles, lists full-step timings, and distinguishes experimental regressions
 from improvements against the established baseline.
+
+The explicit CUDA producer/consumer experiment is enabled with
+`--pipeline-mxfp8 --producer-consumer-mxfp8`. Build its SM121a library first with
+`$PY spark/build_producer_consumer.py`. Dedicated producer warps quantize
+activation tiles into two shared buffers while consumer warps perform native
+MXFP8 MMA. This path has measured concurrency and a no-overlap control, but is
+slower than the established native baseline. See the
+[producer/consumer report and measured timeline](results/producer-consumer/REPORT.md).

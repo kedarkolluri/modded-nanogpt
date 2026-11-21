@@ -1,0 +1,10 @@
+========= COMPUTE-SANITIZER
+{"shape": [1, 128, 32], "config": 2, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [1, 128, 32], "config": 2, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [17, 144, 96], "config": 2, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [17, 144, 96], "config": 2, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [32, 256, 256], "config": 2, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [32, 256, 256], "config": 2, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [256, 512, 768], "config": 2, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [256, 512, 768], "config": 2, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+========= ERROR SUMMARY: 0 errors
