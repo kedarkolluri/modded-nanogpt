@@ -1,0 +1,1 @@
+{"passed": true, "pack_backend": "triton-tiled", "dequant_and_strides": true, "coverage": true, "relative_errors": {"forward_sr_False": 0.0016621750546619296, "dx": 0.0016809568041935563, "dw": 0.001653063576668501, "forward_sr_True": 0.0016621750546619296}}

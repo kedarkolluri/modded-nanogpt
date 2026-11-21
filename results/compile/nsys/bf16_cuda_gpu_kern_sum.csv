@@ -1,0 +1,63 @@
+Time (%),Total Time (ns),Instances,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Name
+6.4,41030144,39,1052055.0,402592.0,396288,9005984,2231356.0,nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_TNNN
+5.7,36083168,72,501155.1,524384.0,398304,844096,100693.5,nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_NNNN
+5.6,35677696,684,52160.4,52656.0,43648,157920,11252.7,void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_32x5_nn_align8>(T1::Params)
+4.9,31244128,72,433946.2,420720.0,390144,645024,49865.0,nvjet_sm121_tst_mma_128x208x32_4_32x104x32_tmaAB_bz_NTNN
+3.9,24933504,216,115432.9,83360.0,18880,393216,100370.9,triton_red_fused__to_copy_linalg_vector_norm_0
+3.8,24233088,36,673141.3,666880.0,655712,785792,23351.3,_relu_square_grad
+3.6,23100000,3,7700000.0,7602784.0,7586208,7911008,182926.1,triton_red_fused__log_softmax__log_softmax_backward_data__to_copy__unsafe_view_arange_eq_expand_nll_loss_backward_scalar_tensor_view_0
+3.5,22512032,144,156333.6,152768.0,141152,276192,16086.8,nvjet_sm121_tst_mma_128x96x64_3_64x24x64_tmaAB_bz_NTNN
+3.4,21706752,36,602965.3,598624.0,579392,660320,18747.3,"void pytorch_flash::flash_bwd_dq_dk_dv_loop_seqk_parallel_kernel<Flash_bwd_kernel_traits<(int)128, (int)64, (int)64, (int)8, (int)4, (int)2, (int)2, (bool)1, (bool)0, cutlass::bfloat16_t, Flash_kernel_traits<(int)128, (int)64, (int)64, (int)8, cutlass::bfloat16_t>>, (bool)0, (bool)1, (bool)0, (bool)0, (bool)1, (bool)1, (bool)0>(pytorch_flash::Flash_bwd_params)"
+3.2,20597440,3,6865813.3,6973184.0,6571360,7052896,258099.9,void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x256_32x3_nt_align8>(T1::Params)
+3.2,20206656,144,140324.0,133888.0,121664,327872,27983.2,void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8>(T1::Params)
+3.1,19630304,3,6543434.7,6447008.0,6265408,6917888,336758.2,nvjet_sm121_tst_mma_256x112x64_2_64x56x64_tmaAB_bz_NNNN
+3.0,19011776,36,528104.9,511280.0,495104,916064,74658.8,void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x256_32x3_tn_align8>(T1::Params)
+2.9,18210784,144,126463.8,116464.0,111776,312768,33145.8,void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_nn_align8>(T1::Params)
+2.8,17756480,33,538075.2,527264.0,518400,667008,32433.5,triton_per_fused__fused_rms_norm_backward__to_copy_add_view_6
+2.5,16044896,36,445691.6,443200.0,433216,485888,10058.5,_relu_square
+2.3,14666240,3,4888746.7,4885024.0,4868448,4912768,22393.3,"void at::native::<unnamed>::multi_tensor_apply_kernel<at::native::<unnamed>::FusedOptimizerTensorListMetadata<(int)4>, at::native::<unnamed>::FusedAdamMathFunctor<float, (int)4, (at::native::ADAM_MODE)1, (bool)0>, const float *, double, double, double, double, double, bool, const float *, const float *>(T1, T2, T3...)"
+2.2,13797504,432,31938.7,18752.0,4192,95904,28971.4,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::CUDAFunctor_add<float>, std::array<char *, (unsigned long)3>, (bool)0>(int, T2, T3)"
+2.2,13739648,324,42406.3,41504.0,40384,104192,5207.9,nvjet_sm121_tst_mma_128x96x64_3_64x24x64_tmaAB_bz_TNNN
+2.1,13225888,720,18369.3,17632.0,16928,70144,4261.9,nvjet_sm121_tst_mma_128x96x64_3_64x32x64_tmaAB_bx_NNNN
+2.1,13095616,30,436520.5,435984.0,431232,441536,2791.6,triton_per_fused__fused_rms_norm_backward__to_copy_add_view_7
+2.0,12570848,36,349190.2,348992.0,337280,367328,6257.6,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_cat_mul_neg_slice_transpose_unsqueeze_view_2
+1.9,11799584,36,327766.2,322816.0,313504,455168,24121.7,triton_per_fused__fused_rms_norm__fused_rms_norm_backward__to_copy_add_mul_neg_slice_slice_backward_transpose_unsqueeze_5
+1.7,10898880,720,15137.3,14720.0,14368,50080,2346.8,void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_64x3_tn_align8>(T1::Params)
+1.7,10827008,720,15037.5,14464.0,14208,64992,3311.1,void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_64x3_nn_align8>(T1::Params)
+1.6,10462784,3,3487594.7,3487616.0,3478176,3496992,9408.0,triton_red_fused__log_softmax__to_copy__unsafe_view_prepare_softmax_online_view_12
+1.4,8962912,36,248969.8,245328.0,236576,344288,17124.0,"void pytorch_flash::flash_fwd_kernel<Flash_fwd_kernel_traits<(int)128, (int)128, (int)64, (int)4, (bool)0, (bool)0, cutlass::bfloat16_t, Flash_kernel_traits<(int)128, (int)128, (int)64, (int)4, cutlass::bfloat16_t>>, (bool)0, (bool)1, (bool)0, (bool)0, (bool)1, (bool)1, (bool)0, (bool)0>(pytorch_flash::Flash_fwd_params)"
+1.4,8820576,216,40836.0,21056.0,16800,116896,29491.1,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float>>, std::array<char *, (unsigned long)2>, (bool)0>(int, T2, T3)"
+1.3,8569472,216,39673.5,17440.0,14848,122048,31835.3,"void at::native::unrolled_elementwise_kernel<at::native::CUDAFunctor_add<float>, std::array<char *, (unsigned long)3>, (int)4, TrivialOffsetCalculator<(int)2, unsigned int>, TrivialOffsetCalculator<(int)1, unsigned int>, at::native::memory::LoadWithCast<(int)2>, at::native::memory::StoreWithCast<(int)1>>(int, T1, T2, T4, T5, T6, T7)"
+1.2,7781632,36,216156.4,215760.0,208256,223360,3595.9,"void pytorch_flash::flash_bwd_dot_do_o_kernel<(bool)1, Flash_bwd_kernel_traits<(int)128, (int)64, (int)64, (int)8, (int)4, (int)2, (int)2, (bool)1, (bool)0, cutlass::bfloat16_t, Flash_kernel_traits<(int)128, (int)64, (int)64, (int)8, cutlass::bfloat16_t>>>(pytorch_flash::Flash_bwd_params)"
+1.1,7198304,18,399905.8,398048.0,391712,420928,7185.4,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_6
+1.1,7037856,12,586488.0,579488.0,571456,623872,15719.1,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_9
+1.0,6544320,18,363573.3,353536.0,350496,464992,28811.8,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_5
+1.0,6534500,900,7260.6,4064.0,3616,60128,6661.2,triton_poi_fused_add_mul_4
+1.0,6479168,36,179976.9,176784.0,169888,227968,11682.6,"void pytorch_flash::flash_bwd_convert_dq_kernel<Flash_bwd_kernel_traits<(int)128, (int)64, (int)64, (int)8, (int)4, (int)2, (int)2, (bool)1, (bool)0, cutlass::bfloat16_t, Flash_kernel_traits<(int)128, (int)64, (int)64, (int)8, cutlass::bfloat16_t>>>(pytorch_flash::Flash_bwd_params, int)"
+0.9,5491392,72,76269.3,76368.0,66112,85600,5234.2,triton_poi_fused__to_copy_t_4
+0.8,5037024,1080,4663.9,4288.0,3328,78368,3063.4,triton_poi_fused_mul_3
+0.8,4911968,3,1637322.7,1637024.0,1628160,1646784,9315.6,triton_poi_fused__to_copy_add_11
+0.7,4332736,15,288849.1,286368.0,277888,318336,10681.0,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_8
+0.5,3501824,72,48636.4,52944.0,36384,89440,10101.0,triton_poi_fused__to_copy_2
+0.5,2985888,3,995296.0,985792.0,984352,1015744,17723.1,triton_poi_fused__to_copy_t_11
+0.4,2735424,144,18996.0,18608.0,12704,49120,4376.7,triton_poi_fused__to_copy_t_1
+0.4,2497344,144,17342.7,16384.0,15008,53856,4500.7,triton_poi_fused_add_mul_5
+0.4,2294688,3,764896.0,764640.0,762848,767200,2187.3,triton_poi_fused__fused_rms_norm__fused_rms_norm_backward__to_copy_add_embedding_dense_backward_view_9
+0.4,2241597,144,15566.6,15360.0,10080,52960,4479.6,triton_poi_fused__to_copy_4
+0.3,1855520,36,51542.2,49696.0,48672,113568,10656.7,void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_32x5_tn_align8>(T1::Params)
+0.3,1791680,216,8294.8,5952.0,3712,30688,5450.9,triton_poi_fused__to_copy_add_div_linalg_vector_norm_2
+0.3,1775744,3,591914.7,588320.0,574336,613088,19624.5,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_7
+0.3,1752928,36,48692.4,47312.0,46720,78592,5496.3,void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x128_64x3_nt_align8>(T1::Params)
+0.2,1503200,3,501066.7,491744.0,489088,522368,18495.2,triton_per_fused__fused_rms_norm_backward__to_copy_add_view_3
+0.2,1473152,3,491050.7,489536.0,488960,494656,3135.6,triton_per_fused__fused_rms_norm__fused_rms_norm_backward__to_copy__unsafe_view_add_view_8
+0.2,1379904,3,459968.0,459264.0,459232,461408,1247.2,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_10
+0.2,1364128,3,454709.3,460160.0,443456,460512,9747.3,triton_per_fused__fused_rms_norm__fused_rms_norm_backward__to_copy_add_embedding_dense_backward_view_10
+0.2,1041536,36,28931.6,28016.0,27104,57952,5036.5,triton_poi_fused_add_mul_permute_4
+0.1,677312,36,18814.2,18496.0,18080,23968,1244.1,triton_poi_fused_permute_6
+0.1,621856,3,207285.3,204160.0,199360,218336,9866.5,triton_per_fused__fused_rms_norm__to_copy_embedding_0
+0.1,524704,3,174901.3,175360.0,173760,175584,994.7,triton_per_fused__fused_rms_norm_backward__to_copy_view_1
+0.1,471776,3,157258.7,156896.0,156768,158112,741.8,triton_per_fused__fused_rms_norm__to_copy__unsafe_view_add_3
+0.0,216320,216,1001.5,864.0,832,8000,733.2,triton_per_fused__to_copy_linalg_vector_norm_1
+0.0,38528,3,12842.7,12832.0,12736,12960,112.4,triton_red_fused__log_softmax__to_copy__unsafe_view_nll_loss_forward_view_13
+0.0,6176,3,2058.7,2080.0,1984,2112,66.6,"void at::native::<unnamed>::multi_tensor_apply_kernel<at::native::<unnamed>::TensorListMetadata<(int)1>, at::native::<unnamed>::BinaryOpScalarFunctor<float, (int)1, (int)1, (int)0>, std::plus<float>, float>(T1, T2, T3...)"
+0.0,2560,3,853.3,864.0,832,864,18.5,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::FillFunctor<float>, std::array<char *, (unsigned long)1>, (bool)0>(int, T2, T3)"

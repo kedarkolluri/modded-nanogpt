@@ -1,0 +1,68 @@
+{
+  "bf16-compiled": {
+    "mean_tokens_per_second": 37776.22825992424,
+    "repeat_tokens_per_second": [
+      38049.02324456174,
+      37503.43327528674
+    ],
+    "peak_allocated_bytes": [
+      5459261952,
+      5459261952
+    ]
+  },
+  "bf16-fused-compiled": {
+    "mean_tokens_per_second": 37847.97382072412,
+    "repeat_tokens_per_second": [
+      37925.33619990265,
+      37770.61144154559
+    ],
+    "peak_allocated_bytes": [
+      5459261952,
+      5459261952
+    ]
+  },
+  "bf16-fused-eager": {
+    "mean_tokens_per_second": 22431.724826512513,
+    "repeat_tokens_per_second": [
+      22493.063882846684,
+      22370.38577017834
+    ],
+    "peak_allocated_bytes": [
+      10108713472,
+      10108713472
+    ]
+  },
+  "mxfp8-compiled": {
+    "mean_tokens_per_second": 33220.18790012972,
+    "repeat_tokens_per_second": [
+      33244.60783860443,
+      33195.76796165501
+    ],
+    "peak_allocated_bytes": [
+      5037931008,
+      5037013504
+    ]
+  },
+  "mxfp8-fused-compiled": {
+    "mean_tokens_per_second": 35542.10198082754,
+    "repeat_tokens_per_second": [
+      36116.0755000333,
+      34968.128461621774
+    ],
+    "peak_allocated_bytes": [
+      5037537792,
+      5037537792
+    ]
+  },
+  "mxfp8-fused-eager": {
+    "mean_tokens_per_second": 21819.095584276205,
+    "repeat_tokens_per_second": [
+      21779.353740725863,
+      21858.837427826544
+    ],
+    "peak_allocated_bytes": [
+      10109237760,
+      10109237760
+    ]
+  }
+}

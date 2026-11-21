@@ -25,9 +25,12 @@ def tokens(path):
 
 
 def main():
+    run_started = time.perf_counter()
     p = argparse.ArgumentParser()
     p.add_argument('--precision', choices=['bf16', 'fp4-reference-sr', 'fp4-reference-nearest', 'fp4-native-sr', 'fp4-native-nearest', 'mxfp8-native-sr', 'mxfp8-native-nearest'], default='bf16')
     p.add_argument('--fuse-activation', action='store_true')
+    p.add_argument('--compile', action='store_true', help='Compile model forward and backward with Inductor')
+    p.add_argument('--compile-mode', choices=['default', 'max-autotune-no-cudagraphs'], default='default')
     p.add_argument('--fp4-epilogue', choices=['eager', 'triton'], default='eager')
     p.add_argument('--tail-precision', choices=['bf16', 'mxfp8'], default='bf16')
     p.add_argument('--pack-backend', choices=['eager', 'triton', 'triton-tiled'], default='eager')
@@ -84,6 +87,9 @@ def main():
         torch.optim.AdamW([model.transformer.wte.weight], lr=.003, betas=(.9, .95), fused=True),
         Muon(model.transformer.h.parameters(), lr=.02),
     ]
+    if args.compile:
+        # Fail on graph breaks rather than silently timing eager fragments.
+        model = torch.compile(model, fullgraph=True, dynamic=False, mode=args.compile_mode)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     def emit(row):
         print(json.dumps(row), flush=True)
@@ -101,6 +107,7 @@ def main():
     def batch(data, offset):
         z = torch.from_numpy(np.array(data[offset:offset+count+1], dtype=np.int64)).cuda()
         return z[:-1].view(args.batch, args.sequence), z[1:].view(args.batch, args.sequence)
+    step_durations = []
     train_seconds = 0.
     measured_seconds = 0.
     measured_steps = 0
@@ -135,6 +142,7 @@ def main():
         torch.cuda.synchronize()
         duration = time.perf_counter() - start
         profiler.after_step(step)
+        step_durations.append(duration)
         train_seconds += duration
         if step >= 5:
             measured_seconds += duration
@@ -148,7 +156,11 @@ def main():
     emit({'finished': True, 'tokens': args.steps * count,
           'train_seconds': train_seconds, 'warmup_excluded_steps': min(5, args.steps),
           'steady_tokens_per_second': measured_steps * count / measured_seconds if measured_steps else None,
-          'peak_allocated_bytes': torch.cuda.max_memory_allocated()})
+          'peak_allocated_bytes': torch.cuda.max_memory_allocated(),
+          'run_wall_seconds': time.perf_counter() - run_started,
+          'step_seconds': step_durations,
+          'dynamo_counters': {category: dict(values) for category, values in torch._dynamo.utils.counters.items()}
+                              if args.compile else {}})
 
 
 if __name__ == '__main__':

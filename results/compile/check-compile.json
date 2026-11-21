@@ -1,0 +1,57 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "mode": "bf16",
+      "max_abs_differences_output_input_weight_grads": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "mode": "mxfp8-nearest",
+      "max_abs_differences_output_input_weight_grads": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "dynamo_counters": {
+    "stats": {
+      "calls_captured": 8,
+      "unique_graphs": 2
+    },
+    "aot_autograd": {
+      "total": 2,
+      "autograd_cache_bypass": 2,
+      "ok": 2
+    },
+    "inductor": {
+      "pattern_matcher_count": 35,
+      "pattern_matcher_nodes": 37,
+      "fxgraph_cache_miss": 4,
+      "extern_calls": 27,
+      "async_compile_cache_miss": 23,
+      "triton_bundler_save_kernel": 200,
+      "triton_bundler_save_static_autotuner": 3,
+      "benchmarking.InductorBenchmarker.benchmark": 8,
+      "benchmarking.InductorBenchmarker.benchmark_gpu": 8,
+      "async_compile_cache_hit": 2
+    },
+    "graph_break": {},
+    "aten_mm_info": {
+      "aten.mm_128_1024_256": 2,
+      "aten.mm_128_256_1024": 2,
+      "aten.mm_256_1024_128": 1,
+      "aten.mm_1024_256_128": 1,
+      "aten._scaled_mm.default_128_1024_256": 2,
+      "aten._scaled_mm.default_128_256_1024": 2,
+      "aten._scaled_mm.default_256_1024_128": 1,
+      "aten._scaled_mm.default_1024_256_128": 1
+    }
+  }
+}

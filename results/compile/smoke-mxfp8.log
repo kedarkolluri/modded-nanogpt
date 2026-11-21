@@ -1,0 +1,268 @@
+/home/kedar/projects/inklings2-mini/spark/record_model.py:28: SyntaxWarning: invalid escape sequence '\s'
+  """
+{"config": {"precision": "mxfp8-native-sr", "fuse_activation": true, "compile": true, "compile_mode": "default", "fp4_epilogue": "eager", "tail_precision": "mxfp8", "pack_backend": "triton-tiled", "steps": 8, "layers": 12, "width": 768, "heads": 6, "batch": 32, "sequence": 256, "seed": 42, "eval_every": 50, "eval_batches": 1, "data": "data", "nsight": false, "profile_dir": null, "profile_start": 20, "profile_steps": 3, "output": "results/compile/smoke-mxfp8.jsonl"}, "parameters": 123568128, "torch": "2.14.0+cu130", "gpu": "NVIDIA GB10", "native_low_precision_gemm": true, "source_sha256": {"train.py": "d1923ce43c9e500280ac61ae05c2fd3e5b36c6dd4c76be547cf6ba40602ccb06", "native.py": "6ed80a5b29270f16bb88a0c8711db8861455e4ab20fb1f1e4cdc53564b23af8c", "triton_pack.py": "3141905f2cd61a1942c9075e9fc2853e3308cbd2ac36ca44b54057e3037ceaa9", "triton_pack_tiled.py": "1cb8c1d1b4fdc8dda8098156ce1b617b20957ac9b043075b2a54a0a4a1a9aa40", "precision.py": "f21bcfca89a17a3fc19a00a43705978a9ed8e037b202917776ef02339864dd87", "record_model.py": "572734c9d2fbd4cd73880b33c09f0e857747cc655ccaa9a3bf55c524dcfa7c74", "profile_tools.py": "b183822f44bbaa19f4a34c41567438a7e09fc5da47da7cdcd65fc43726ad006f", "trace_analysis.py": "1714df5b0df4e3a6c118459210deb245238dbc930a77e806e0aaa46e69b8bf45", "epilogue.py": "e9e6a09a12421227c3b5a246c0860002299511a54278577b2dd40cc324c0bf84", "activation.py": "b96b7174d0e0fcf4623ae75bcf5c97452cbf197202b7619a8c770a3cd0c5ad86"}}
+W1120 19:12:16.946000 2950142 torch/_inductor/utils.py:1806] [0/0] Not enough SMs to use max_autotune_gemm mode
+{"step": 0, "val_loss": 15.97856330871582, "train_seconds": 0.0}
+V1120 19:12:25.741000 2950142 torch/_dynamo/guards.py:5621] [0/1] [__recompiles] Recompiling function forward in /home/kedar/projects/inklings2-mini/spark/record_model.py:215
+V1120 19:12:25.741000 2950142 torch/_dynamo/guards.py:5621] [0/1] [__recompiles]     triggered by the following guard failure(s):
+V1120 19:12:25.741000 2950142 torch/_dynamo/guards.py:5621] [0/1] [__recompiles]     - 0/0: GLOBAL_STATE changed: grad_mode
+Traceback (most recent call last):
+  File "/home/kedar/projects/inklings2-mini/spark/train.py", line 162, in <module>
+    main()
+  File "/home/kedar/projects/inklings2-mini/spark/train.py", line 133, in main
+    _, loss = model(x, y, return_logits=False)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 563, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 1261, in compile_wrapper
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 2649, in __call__
+    result = self._torchdynamo_orig_backend(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 778, in __call__
+    result = _compile(
+             ^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 2116, in _compile
+    guarded_code, tracer_output = compile_inner(code, one_graph, hooks)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_utils_internal.py", line 114, in wrapper_function
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1701, in compile_inner
+    result = _compile_inner(code, one_graph, hooks)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1761, in _compile_inner
+    dynamo_output = compile_frame(
+                    ^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1598, in compile_frame
+    bytecode, tracer_output = transform_code_object(code, transform)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/bytecode_transformation.py", line 1843, in transform_code_object
+    tracer_output = transformations(instructions, code_options)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 1569, in transform
+    tracer_output = trace_frame(
+                    ^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 369, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 968, in trace_frame
+    run_tracer()
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/convert_frame.py", line 949, in run_tracer
+    tracer.run()
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 2094, in run
+    while self.step():
+          ^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1747, in step
+    self.dispatch_table[inst.opcode](self, inst)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1105, in wrapper
+    return inner_fn(self, inst)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 4750, in CALL
+    self._call(inst)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 4741, in _call
+    self.call_function(fn, args, kwargs)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1637, in call_function
+    self.push(fn.call_function(self, args, kwargs))  # type: ignore[arg-type]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/lazy.py", line 707, in realize_and_forward
+    return getattr(self.realize(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/nn_module.py", line 1372, in call_function
+    return variables.UserFunctionVariable(fn, source=source).call_function(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/functions.py", line 971, in call_function
+    return super().call_function(tx, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/functions.py", line 577, in call_function
+    return tx.inline_user_function_return(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1665, in inline_user_function_return
+    return InliningInstructionTranslator.inline_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 5996, in inline_call
+    return tracer.inline_call_()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 6231, in inline_call_
+    self.run()
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 2094, in run
+    while self.step():
+          ^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1747, in step
+    self.dispatch_table[inst.opcode](self, inst)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1105, in wrapper
+    return inner_fn(self, inst)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 4750, in CALL
+    self._call(inst)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 4741, in _call
+    self.call_function(fn, args, kwargs)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1637, in call_function
+    self.push(fn.call_function(self, args, kwargs))  # type: ignore[arg-type]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/lazy.py", line 707, in realize_and_forward
+    return getattr(self.realize(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/nn_module.py", line 1372, in call_function
+    return variables.UserFunctionVariable(fn, source=source).call_function(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/functions.py", line 971, in call_function
+    return super().call_function(tx, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/functions.py", line 577, in call_function
+    return tx.inline_user_function_return(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1665, in inline_user_function_return
+    return InliningInstructionTranslator.inline_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 5996, in inline_call
+    return tracer.inline_call_()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 6231, in inline_call_
+    self.run()
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 2094, in run
+    while self.step():
+          ^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1747, in step
+    self.dispatch_table[inst.opcode](self, inst)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1105, in wrapper
+    return inner_fn(self, inst)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 4750, in CALL
+    self._call(inst)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 4741, in _call
+    self.call_function(fn, args, kwargs)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1637, in call_function
+    self.push(fn.call_function(self, args, kwargs))  # type: ignore[arg-type]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/lazy.py", line 707, in realize_and_forward
+    return getattr(self.realize(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/nn_module.py", line 1372, in call_function
+    return variables.UserFunctionVariable(fn, source=source).call_function(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/functions.py", line 971, in call_function
+    return super().call_function(tx, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/functions.py", line 577, in call_function
+    return tx.inline_user_function_return(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1665, in inline_user_function_return
+    return InliningInstructionTranslator.inline_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 5996, in inline_call
+    return tracer.inline_call_()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 6231, in inline_call_
+    self.run()
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 2094, in run
+    while self.step():
+          ^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1747, in step
+    self.dispatch_table[inst.opcode](self, inst)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1105, in wrapper
+    return inner_fn(self, inst)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 4750, in CALL
+    self._call(inst)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 4741, in _call
+    self.call_function(fn, args, kwargs)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1637, in call_function
+    self.push(fn.call_function(self, args, kwargs))  # type: ignore[arg-type]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/misc.py", line 1667, in call_function
+    return self.obj.call_method(tx, self.name, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/misc.py", line 1271, in call_method
+    return self.call_apply(tx, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/misc.py", line 1176, in call_apply
+    ).call_function(tx, args, kwargs)
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/higher_order_ops.py", line 2236, in wrapped_call_function
+    return original_call_function(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/higher_order_ops.py", line 5212, in call_function
+    self.trace_backward_graph(tx, ctx, fwd_tracer, fwd_out, fwd_fn)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/higher_order_ops.py", line 5499, in trace_backward_graph
+    speculate_subgraph_with_auto_output_flattening(
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/higher_order_ops.py", line 1832, in speculate_subgraph_with_auto_output_flattening
+    output = trace_hop_function_with_auto_output_flattening(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/higher_order_ops.py", line 1598, in trace_hop_function_with_auto_output_flattening
+    output = f.call_function(tx, args, sub_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/lazy.py", line 707, in realize_and_forward
+    return getattr(self.realize(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/functions.py", line 971, in call_function
+    return super().call_function(tx, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/functions.py", line 577, in call_function
+    return tx.inline_user_function_return(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1665, in inline_user_function_return
+    return InliningInstructionTranslator.inline_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 5996, in inline_call
+    return tracer.inline_call_()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 6231, in inline_call_
+    self.run()
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 2094, in run
+    while self.step():
+          ^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1747, in step
+    self.dispatch_table[inst.opcode](self, inst)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1105, in wrapper
+    return inner_fn(self, inst)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 4750, in CALL
+    self._call(inst)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 4741, in _call
+    self.call_function(fn, args, kwargs)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/symbolic_convert.py", line 1637, in call_function
+    self.push(fn.call_function(self, args, kwargs))  # type: ignore[arg-type]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/misc.py", line 1667, in call_function
+    return self.obj.call_method(tx, self.name, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/misc.py", line 1274, in call_method
+    return self.call_backward(tx, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/_dynamo/variables/misc.py", line 1229, in call_backward
+    raise AssertionError(
+AssertionError: Expected FakeBackwardCFunction, got <class 'torch.autograd.function.FunctionCtx'>
+
+from user code:
+   File "/home/kedar/projects/inklings2-mini/spark/record_model.py", line 220, in forward
+    x = block(x)
+        ^^^^^^^^
+  File "/home/kedar/projects/inklings2-mini/spark/record_model.py", line 189, in forward
+    x = x + self.mlp(F.rms_norm(x, (x.size(-1),)))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/inklings2-mini/spark/activation.py", line 78, in forward
+    return self.c_proj(self.c_fc(x))
+                       ^^^^^^^^^^^^^
+  File "/home/kedar/projects/inklings2-mini/spark/native.py", line 120, in forward
+    return fn.apply(x, self.weight, self.stochastic)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/inklings2-mini/spark/native.py", line 108, in backward
+    return NativeLinearFn.backward(ctx, grad)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Set TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS="+dynamo"

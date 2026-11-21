@@ -105,7 +105,13 @@ class MXFP8LinearFn(torch.autograd.Function):
     @staticmethod
     def backward(ctx, grad):
         # Same estimator as the FP4 path: requantize actual forward values.
-        return NativeLinearFn.backward(ctx, grad)
+        # Keep the backward body here: calling another autograd.Function's
+        # backward confuses Dynamo's custom-autograd context tracing.
+        x, w = ctx.saved_tensors
+        g = grad.reshape(-1, grad.shape[-1])
+        dx = mx_mm(g, w.T, ctx.stochastic)
+        dw = mx_mm(g.T, x.T, ctx.stochastic)
+        return dx.reshape(ctx.shape), dw, None
 
 
 class NativeLinear(nn.Module):

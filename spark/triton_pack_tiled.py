@@ -59,6 +59,6 @@ def fp8_pack(x, stochastic=True, return_dequant=False):
     seed = torch.randint(0, 2**31-1, (), device=x.device, dtype=torch.int64) if stochastic else scales
     dequant = torch.empty((rows, cols), device=x.device, dtype=torch.bfloat16) if return_dequant else packed
     _fp8_transpose[(triton.cdiv(padded_rows, 16), triton.cdiv(cols, 128))](
-        x, packed, scales, seed, dequant, rows, cols, *x.stride(), nc, stochastic, return_dequant, num_warps=4)
+        x, packed, scales, seed, dequant, rows, cols, *x.stride(), nc, stochastic, return_dequant, 16, 128, num_warps=4)
     result = (packed, scales.view(torch.float8_e8m0fnu))
     return (*result, dequant) if return_dequant else result

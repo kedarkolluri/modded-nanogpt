@@ -179,3 +179,24 @@ Measured results, correctness checks, and profiles: [activation fusion report](r
 
 Nsight Systems training traces and Nsight Compute kernel counters:
 [Nsight report](results/nsight/REPORT.md). Reproduce with `spark/run_nsight.sh`.
+
+## Compiled model comparison
+
+`--compile` enables Inductor for the complete model with `fullgraph=True` and
+static shapes. Forward and backward are compiled; the optimizer loop retains its
+existing implementation (Muon's Newton–Schulz operation was already compiled).
+The default compile mode does not enable CUDA Graph replay. Use
+`--compile-mode max-autotune-no-cudagraphs` for a separate tuning experiment.
+
+`spark/run_compile_comparison.sh` compares compiled BF16 and native MXFP8,
+with ordinary and hand-fused activations, plus fresh eager fused controls. It
+runs each mode twice in reversed order, with identical 100-step batch-32 runs.
+The first five steps are excluded from steady throughput; all step times and
+Dynamo counters are saved. Evaluation and compilation startup are excluded from
+steady throughput. `TORCH_LOGS=graph_breaks,recompiles` records compiler diagnostics.
+`spark/check_compile.py` compares eager/compiled fused MLP outputs and gradients;
+its MXFP8 check uses nearest rounding to avoid stochastic RNG sequence changes.
+
+Compiled results and correctness evidence: [compiled comparison](results/compile/REPORT.md).
+`spark/run_compiled_nsys.sh` captures warmed-up Systems traces of both fused
+compiled paths using a fresh `RUN_DIR`.

@@ -1,0 +1,6 @@
+Range,Style,Total Proj Time (ns),Total Range Time (ns),Range Instances,Proj Avg (ns),Proj Med (ns),Proj Min (ns),Proj Max (ns),Proj StdDev (ns),Total GPU Ops,Avg GPU Ops,Avg Range Lvl,Avg Num Child
+:phase/optimizer,PushPop,188203840,541975856,3,62734613.3,62421472.0,62235200,63547168,709829.6,6954,2318.0,0.0,2.0
+:optimizer/muon,PushPop,173517536,540146720,3,57839178.7,57502144.0,57343520,58671872,725481.9,6948,2316.0,1.0,0.0
+:phase/forward,PushPop,170150560,13638672,3,56716853.3,56221280.0,56109152,57820128,957107.3,627,209.0,0.0,0.0
+:optimizer/adamw,PushPop,14678816,1740032,3,4892938.7,4889248.0,4872544,4917024,22468.5,6,2.0,1.0,0.0
+:phase/backward,PushPop,2560,18833600,3,853.3,864.0,832,864,18.5,3,1.0,0.0,0.0
