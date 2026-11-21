@@ -37,7 +37,7 @@ def fp4_pack(x, per_token=False):
     return packed, swizzle_scale(scales.reshape(rows, cols//16)), outer, dequant.to(torch.bfloat16)
 
 
-def fp8_pack(x, stochastic=True):
+def fp8_pack(x, stochastic=True, return_dequant=False):
     x = x.detach().float().contiguous()
     rows, cols = x.shape
     blocks = x.reshape(rows, cols//32, 32)
@@ -52,7 +52,11 @@ def fp8_pack(x, stochastic=True):
         v = (lower + (torch.rand_like(v) < probability)*spacing).clamp_max(448).copysign(v)
     q = v.to(torch.float8_e4m3fn).reshape(rows, cols)
     scales = scale.reshape(rows, cols//32).to(torch.float8_e8m0fnu)
-    return q, swizzle_scale(scales)
+    result = (q, swizzle_scale(scales))
+    if return_dequant:
+        dequant = (q.float().reshape(rows, cols//32, 32) * scale).reshape_as(x).bfloat16()
+        return *result, dequant
+    return result
 
 
 def mx_mm(a, bt, stochastic):
@@ -83,21 +87,44 @@ class NativeLinearFn(torch.autograd.Function):
         return dx.reshape(ctx.shape), dw, None
 
 
+class MXFP8LinearFn(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, x, weight, stochastic):
+        shape = x.shape
+        aq, sa, ax = fp8_pack(x.reshape(-1, shape[-1]), False, return_dequant=True)
+        bq, sb, bw = fp8_pack(weight, False, return_dequant=True)
+        out = torch._scaled_mm(aq, bq.T, sa, sb, out_dtype=torch.bfloat16)
+        ctx.save_for_backward(ax, bw)
+        ctx.shape, ctx.stochastic = shape, stochastic
+        return out.reshape(*shape[:-1], weight.shape[0])
+
+    @staticmethod
+    def backward(ctx, grad):
+        # Same estimator as the FP4 path: requantize actual forward values.
+        return NativeLinearFn.backward(ctx, grad)
+
+
 class NativeLinear(nn.Module):
-    def __init__(self, linear, stochastic=True):
+    def __init__(self, linear, stochastic=True, forward_format='nvfp4'):
         super().__init__()
         self.weight = linear.weight
         self.stochastic = stochastic
+        self.forward_format = forward_format
 
     def forward(self, x):
-        return NativeLinearFn.apply(x, self.weight, self.stochastic)
+        fn = MXFP8LinearFn if self.forward_format == 'mxfp8' else NativeLinearFn
+        return fn.apply(x, self.weight, self.stochastic)
 
 
-def replace_mlps(model, stochastic=True):
+def replace_mlps(model, stochastic=True, forward_format='nvfp4', tail_precision='bf16'):
     count = len(model.transformer.h)
-    for block in model.transformer.h[:count - (count+5)//6]:
+    first_tail = count - (count+5)//6
+    for index, block in enumerate(model.transformer.h):
+        if index >= first_tail and tail_precision == 'bf16':
+            continue
+        fmt = 'mxfp8' if index >= first_tail else forward_format
         for name in ('c_fc', 'c_proj'):
-            setattr(block.mlp, name, NativeLinear(getattr(block.mlp, name), stochastic))
+            setattr(block.mlp, name, NativeLinear(getattr(block.mlp, name), stochastic, fmt))
 
 
 eager_fp4_pack = fp4_pack

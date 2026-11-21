@@ -10,9 +10,9 @@ from triton_pack import fp4_pack, fp8_pack as row_fp8_pack, _scale_offset
 
 
 @triton.jit
-def _fp8_transpose(X, Q, S, Seed, ROWS: tl.constexpr, COLS: tl.constexpr,
+def _fp8_transpose(X, Q, S, Seed, D, ROWS: tl.constexpr, COLS: tl.constexpr,
                    SR: tl.constexpr, SC: tl.constexpr, NC: tl.constexpr,
-                   STOCHASTIC: tl.constexpr, R: tl.constexpr = 16, C: tl.constexpr = 128):
+                   STOCHASTIC: tl.constexpr, SAVE_DEQUANT: tl.constexpr, R: tl.constexpr = 16, C: tl.constexpr = 128):
     row = tl.program_id(0) * R + tl.arange(0, R)
     col = tl.program_id(1) * C + tl.arange(0, C)
     x = tl.load(X + row[:, None] * SR + col[None, :] * SC,
@@ -33,16 +33,21 @@ def _fp8_transpose(X, Q, S, Seed, ROWS: tl.constexpr, COLS: tl.constexpr,
         rounded = tl.minimum(lower + (random < probability) * spacing, 448.)
         sign = (v.to(tl.int32, bitcast=True) >> 31) & 1
         v = tl.where(sign != 0, -rounded, rounded)
-    tl.store(Q + row[:, None] * COLS + col[None, :], tl.reshape(v, (R, C)).to(tl.float8e4nv),
+    quantized = v.to(tl.float8e4nv)
+    tl.store(Q + row[:, None] * COLS + col[None, :], tl.reshape(quantized, (R, C)),
              (row[:, None] < ROWS) & (col[None, :] < COLS))
+    if SAVE_DEQUANT:
+        dequant = quantized.to(tl.float32) * scale[:, :, None]
+        tl.store(D + row[:, None] * COLS + col[None, :], tl.reshape(dequant, (R, C)),
+                 (row[:, None] < ROWS) & (col[None, :] < COLS))
     block = tl.program_id(1) * (C // 32) + tl.arange(0, C // 32)
     encoded = tl.where((row[:, None] < ROWS) & (block[None, :] < COLS // 32), exponent + 127., 0.).to(tl.uint8)
     tl.store(S + _scale_offset(row[:, None], block[None, :], NC), encoded, block[None, :] < NC)
 
 
-def fp8_pack(x, stochastic=True):
+def fp8_pack(x, stochastic=True, return_dequant=False):
     if x.stride(1) == 1:
-        return row_fp8_pack(x, stochastic)
+        return row_fp8_pack(x, stochastic, return_dequant)
     x = x.detach()
     rows, cols = x.shape
     if cols % 32:
@@ -52,6 +57,8 @@ def fp8_pack(x, stochastic=True):
     packed = torch.empty((rows, cols), device=x.device, dtype=torch.float8_e4m3fn)
     scales = torch.empty(padded_rows * nc, device=x.device, dtype=torch.uint8)
     seed = torch.randint(0, 2**31-1, (), device=x.device, dtype=torch.int64) if stochastic else scales
+    dequant = torch.empty((rows, cols), device=x.device, dtype=torch.bfloat16) if return_dequant else packed
     _fp8_transpose[(triton.cdiv(padded_rows, 16), triton.cdiv(cols, 128))](
-        x, packed, scales, seed, rows, cols, *x.stride(), nc, stochastic, num_warps=4)
-    return packed, scales.view(torch.float8_e8m0fnu)
+        x, packed, scales, seed, dequant, rows, cols, *x.stride(), nc, stochastic, return_dequant, num_warps=4)
+    result = (packed, scales.view(torch.float8_e8m0fnu))
+    return (*result, dequant) if return_dequant else result

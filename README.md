@@ -112,3 +112,31 @@ FP4 midpoint rounding follows the eager implementation's toward-zero tie rule;
 this is not a bitwise reproduction of a hardware nearest-even converter.
 
 Latest measured results: [fused packing and batch scaling](results/fused/REPORT.md).
+
+## MXFP8 baseline and profiling
+
+`mxfp8-native-sr` uses native MXFP8 forward GEMMs and stochastic MXFP8
+backward re-quantization. Forward rounding is nearest. The fused packer writes
+reconstructed forward inputs for backward in the same kernel; the backward
+estimator uses those quantized forward values, as in the FP4 path.
+
+Use `--tail-precision mxfp8` for the three-way comparison: the MXFP8 mode then
+converts every MLP, while the FP4 mode uses NVFP4 in the first five-sixths of MLPs
+and MXFP8 in the final sixth. BF16 uses ordinary autograd everywhere. Attention
+and the tied embedding/head stay in BF16 autocast for all modes. Older runs used
+`--tail-precision bf16` (still the default) and remain reproducible.
+
+```sh
+$PY spark/check_mxfp8.py --pack-backend triton-tiled
+PYTHON=$PY RUN_DIR=results/my-three-way spark/run_precision_comparison.sh
+$PY spark/train.py --precision mxfp8-native-sr --tail-precision mxfp8   --pack-backend triton-tiled --batch 32 --eval-batches 1 --steps 25   --profile-start 20 --profile-steps 3 --profile-dir results/profile-mxfp8   --output results/profile-mxfp8.jsonl
+```
+
+Profiles contain a compressed Chrome trace, raw operator statistics and a
+kernel-attribution summary. The analysis excludes GPU annotation ranges and
+attributes actual CUDA kernels to CPU ranges using launch correlation IDs.
+Nested ranges overlap, so parent and child totals must not be summed. Profiling
+introduces overhead; use the separate unprofiled runs for throughput claims.
+
+Code/results snapshot before MXFP8: commit `67290e4`, tag `spark-fused-v1`.
+A Git recovery bundle is stored on Spark in `snapshots/`.

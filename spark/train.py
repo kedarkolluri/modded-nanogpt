@@ -11,6 +11,7 @@ import numpy as np
 import torch
 from record_model import GPT, GPTConfig, Muon
 from precision import replace_mlps
+from profile_tools import StepProfiler
 
 
 def tokens(path):
@@ -25,7 +26,8 @@ def tokens(path):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--precision', choices=['bf16', 'fp4-reference-sr', 'fp4-reference-nearest', 'fp4-native-sr', 'fp4-native-nearest'], default='bf16')
+    p.add_argument('--precision', choices=['bf16', 'fp4-reference-sr', 'fp4-reference-nearest', 'fp4-native-sr', 'fp4-native-nearest', 'mxfp8-native-sr', 'mxfp8-native-nearest'], default='bf16')
+    p.add_argument('--tail-precision', choices=['bf16', 'mxfp8'], default='bf16')
     p.add_argument('--pack-backend', choices=['eager', 'triton', 'triton-tiled'], default='eager')
     p.add_argument('--steps', type=int, default=100)
     p.add_argument('--layers', type=int, default=12)
@@ -37,10 +39,16 @@ def main():
     p.add_argument('--eval-every', type=int, default=25)
     p.add_argument('--eval-batches', type=int, default=8)
     p.add_argument('--data', type=Path, default=Path('data'))
+    p.add_argument('--profile-dir', type=Path)
+    p.add_argument('--profile-start', type=int, default=20)
+    p.add_argument('--profile-steps', type=int, default=3)
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
     if args.batch * args.sequence % 32 or args.width % 32:
         p.error('batch*sequence and width must be divisible by 32')
+    if args.profile_dir and (args.profile_start < 5 or args.profile_steps < 1 or args.profile_start + args.profile_steps > args.steps):
+        p.error('Profile must begin after warmup and finish within the run')
+    profiler = StepProfiler(args.profile_dir, args.profile_start, args.profile_steps)
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
     train = tokens(args.data / 'fineweb_train_000001.bin')
@@ -49,10 +57,12 @@ def main():
     if len(train) < count * args.steps + 1 or len(val) < count * args.eval_batches + 1:
         p.error('Not enough tokens for this run')
     model = GPT(GPTConfig(n_layer=args.layers, n_embd=args.width, n_head=args.heads)).cuda()
-    if args.precision.startswith('fp4-native'):
+    if args.precision.startswith(('fp4-native', 'mxfp8-native')):
         from native import replace_mlps as replace_native, set_pack_backend
         set_pack_backend(args.pack_backend)
-        replace_native(model, stochastic=args.precision.endswith('-sr'))
+        replace_native(model, stochastic=args.precision.endswith('-sr'),
+                       forward_format='mxfp8' if args.precision.startswith('mxfp8') else 'nvfp4',
+                       tail_precision=args.tail_precision)
     elif args.precision != 'bf16':
         replace_mlps(model, stochastic=args.precision.endswith('-sr'))
     # Match initialization/data across modes. Separate RNG for quantization.
@@ -68,12 +78,13 @@ def main():
             f.write(json.dumps(row) + '\n')
     if args.output.exists():
         raise FileExistsError(args.output)
-    emit({'config': vars(args) | {'data': str(args.data), 'output': str(args.output)},
+    emit({'config': vars(args) | {'data': str(args.data), 'output': str(args.output),
+                                    'profile_dir': str(args.profile_dir) if args.profile_dir else None},
           'parameters': sum(x.numel() for x in model.parameters()),
           'torch': torch.__version__, 'gpu': torch.cuda.get_device_name(),
-          'native_low_precision_gemm': args.precision.startswith('fp4-native'),
+          'native_low_precision_gemm': args.precision.startswith(('fp4-native', 'mxfp8-native')),
           'source_sha256': {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py')}})
+                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py')}})
     def batch(data, offset):
         z = torch.from_numpy(np.array(data[offset:offset+count+1], dtype=np.int64)).cuda()
         return z[:-1].view(args.batch, args.sequence), z[1:].view(args.batch, args.sequence)
@@ -95,16 +106,22 @@ def main():
             break
         x, y = batch(train, step * count)
         torch.cuda.synchronize()
+        profiler.before_step(step, model)
         start = time.perf_counter()
         for opt in optimizers:
             opt.zero_grad(set_to_none=True)
-        with torch.autocast('cuda', dtype=torch.bfloat16):
-            _, loss = model(x, y, return_logits=False)
-        loss.backward()
-        for opt in optimizers:
-            opt.step()
+        with profiler.scope('phase/forward'):
+            with torch.autocast('cuda', dtype=torch.bfloat16):
+                _, loss = model(x, y, return_logits=False)
+        with profiler.scope('phase/backward'):
+            loss.backward()
+        with profiler.scope('phase/optimizer'):
+            for index, opt in enumerate(optimizers):
+                with profiler.scope('optimizer/adamw' if index == 0 else 'optimizer/muon'):
+                    opt.step()
         torch.cuda.synchronize()
         duration = time.perf_counter() - start
+        profiler.after_step(step)
         train_seconds += duration
         if step >= 5:
             measured_seconds += duration
@@ -114,6 +131,7 @@ def main():
             raise RuntimeError(f'Non-finite loss at step {step}')
         if step % 10 == 0:
             emit({'step': step+1, 'train_loss': value, 'step_seconds': duration})
+    profiler.finish()
     emit({'finished': True, 'tokens': args.steps * count,
           'train_seconds': train_seconds, 'warmup_excluded_steps': min(5, args.steps),
           'steady_tokens_per_second': measured_steps * count / measured_seconds if measured_steps else None,
