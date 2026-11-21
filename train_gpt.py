@@ -1,639 +1,419 @@
+"""NanoGPT speedrun, track 1: train a GPT-2 small-scale model to 3.28 FineWeb val loss on 8xH100.
+
+Launch: torchrun --standalone --nproc_per_node=8 train_gpt.py
+
+This file is the outline of the whole run. The model, optimizer, data and schedules live in
+the `track_1_short/` package; `track_1_short/perf/` holds the kernels and precision tricks that make it
+fast, and can be skipped when reading for the algorithm.
+"""
 import os
 import sys
-with open(sys.argv[0]) as f:
-    code = f.read() # read the code of this file ASAP, for logging
-import uuid
-import time
+
+os.environ["PYTORCH_ALLOC_CONF"] = "expandable_segments:True"
+
+from track_1_short.run_log import log_environment, read_source, start_run_log
+
+# Read the source ASAP, for the run log.
+code = read_source(sys.argv[0])
+
 import copy
-import glob
-from dataclasses import dataclass
-from functools import lru_cache
-from pathlib import Path
+import gc
+import time
 
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 import torch
-torch.empty(1, device="cuda", requires_grad=True).backward() # prevents a bug on some systems
-from torch import Tensor, nn
-import torch.nn.functional as F
+
+torch.empty(
+    1, device=f"cuda:{os.environ['LOCAL_RANK']}", requires_grad=True
+).backward()  # prevents a bug on some systems
+import torch._dynamo as dynamo
 import torch.distributed as dist
-# use of FlexAttention contributed by @KoszarskyB
-from torch.nn.attention.flex_attention import BlockMask, flex_attention
-#torch._inductor.config.coordinate_descent_tuning = True # we have banned this flag for new records because it causes compilation to take 30min
+from torch import nn
 
-# -----------------------------------------------------------------------------
-# Custom operators: FP8 matmul by @YouJiacheng
+# torch._inductor.config.coordinate_descent_tuning = True # we have banned this flag for new records because it causes compilation to take 30min
+from track_1_short.canonical_mask import BackgroundCanonicalMask
+from track_1_short.config import (
+    LR_COOLDOWN_FRAC,
+    SPLIT_EMBED_STAGE,
+    TRAINING_STAGES,
+    WS_POST_YARN_EXT,
+    Hyperparameters,
+)
+from track_1_short.data import ScheduledBatches, cu_seqlens_rows, distributed_data_generator
+from track_1_short.distributed import setup_distributed
+from track_1_short.model.gpt import ATTN_BANK_ORDER, FP8_EXACT_SCALE_CALLS, GPT
+from track_1_short.model.prefix_prediction import build_prefix_table_bucket
+from track_1_short.ngram_table import (
+    MAX_CYCLE_STEPS,
+    NGRAM_DIM,
+    NgramTable,
+    is_update_step,
+    ngram_row_ids,
+)
+from track_1_short.perf.cuda_graphs.baked_addresses import assert_addresses_unchanged, baked_addresses
+from track_1_short.perf.cuda_graphs.capture_plan import plan_warmup, step_graph_key
+from track_1_short.perf.cuda_graphs.fp8_refresh_graphs import Fp8RefreshGraphs
+from track_1_short.perf.cuda_graphs.optimizer_graphs import AnvilBankGraphs, assert_banks_alias_live_state
+from track_1_short.perf.cuda_graphs.step_graphs import StepGraphs
+from track_1_short.perf.deferred_gathers import DEFERRED_LABELS, DeferredGathers
+from track_1_short.perf.kernels.mlp import prime_stage_cache
+from track_1_short.perf.pinned_batches import PinnedBatchStaging
+from track_1_short.perf.row_prefetch import PrefetchStaging, RowPrefetch
+from track_1_short.perf.value_embed_pull import ValueEmbedPull
+from track_1_short.sampled_softmax import SampledSoftmax
+from track_1_short.schedule import TrainingSchedule
+from track_1_short.tail_average import TailAverages
+from track_1_short.training import TrainingManager
 
-@torch.library.custom_op("nanogpt::mm", mutates_args=())
-def mm_op(x: Tensor, w: Tensor, x_s: float, w_s: float, grad_s: float) -> tuple[Tensor, Tensor, Tensor]:
-    @torch.compile
-    def impl(x: Tensor, w: Tensor):
-        assert x.is_contiguous() and w.is_contiguous()
-        x_f8 = x.div(x_s).to(torch.float8_e4m3fn)
-        w_f8 = w.div(w_s).to(torch.float8_e4m3fn)
-        out = torch._scaled_mm(
-            x_f8,
-            w_f8.T,
-            out_dtype=torch.bfloat16,
-            scale_a=x.new_tensor(x_s, dtype=torch.float32),
-            scale_b=x.new_tensor(w_s, dtype=torch.float32),
-            use_fast_accum=True,
+# One compiled graph per (stage, sampled-softmax P, train/eval) combination: 6 train graphs (stages 0, 1, 3,
+# 4 and stage 2 at two P values), the same 6 under no_grad (the step graphs' self-checks) and the eval
+# graph of each validation's window configuration (only the final one in the record run).
+dynamo.config.recompile_limit = 64
+# Step lines in the timed loop (console and log): every Nth step, plus the last two (record #360).
+PRINT_EVERY = 25
+
+
+def train_step(training_manager, step_graphs, row_prefetch, sampled_softmax, batches, deferred_gathers,
+               step: int, lm_head_f8_col, prefetch_next: bool):
+    """One optimizer step on one microbatch: requantize for the previous update, forward/backward, update.
+
+    The forward and backward are CUDA-graph replays of the compiled model's training loss
+    (perf/cuda_graphs/step_graphs.py; the warmup's first visit of each configuration captures them).
+    With `prefetch_next`, the next step's sampled-softmax candidates are built on the prep thread
+    while this step's optimizer runs. The n-gram rows and value_embeds rows of the step's update cycle
+    were pulled into the model's cache and replica at the previous table update; at an update step the
+    next cycle's pulls run alongside (perf/row_prefetch.py). The optimizer leaves the bank gathers in
+    flight; the next step waits them and refreshes the fp8 weight caches (perf/deferred_gathers.py).
+    """
+    # Peek, not take: the row pulls for this step's cycle read this batch too. Taken at the end.
+    batch = batches.peek(step)
+    ngram_table = row_prefetch.ngram
+    ngram_slots = row_prefetch.forward_slots(step, batch.ngram_ids)
+    # This step's sampled-softmax candidate set starts uploading on its copy stream first, so the copy
+    # runs under the flush below (no-op on full-softmax steps).
+    sampled_softmax.upload(step, batch.targets_cpu)
+    # The last moment before the first reader of the banks: wait the previous step's gathers and
+    # refresh the fp8 weights.
+    deferred_gathers.flush()
+    # Before the forward, after the lm_head fp8 refresh just above: the candidates' lm_head rows. None on
+    # full-softmax steps.
+    sampled_loss = sampled_softmax.gather(step, lm_head_f8_col)
+    step_graphs.forward(step, batch, ngram_slots, training_manager.get_forward_args(sampled_loss))
+    # Eager, between the two replays: the next cycle's row-id exchange hides under the backward.
+    row_prefetch.after_forward(step)
+    ngram_grad = step_graphs.backward()
+    ngram_table.accumulate_grad(ngram_slots, step_graphs.hold_ngram_grad(
+        ngram_grad, pending=len(ngram_table.pending), event_this_step=row_prefetch.is_update(step)))
+    sampled_softmax.mark_readers_done()
+    row_prefetch.post_prep(step)
+    if prefetch_next:
+        sampled_softmax.prefetch(step + 1, batches.peek(step + 1).targets_cpu)
+    gathers = training_manager.step_optimizers(step, row_prefetch, DEFERRED_LABELS)
+    # lm_head is Adam-updated, i.e. only on Adam steps, so its fp8 copies only change then.
+    deferred_gathers.hand_over(gathers, refresh_lm=training_manager.is_adam_step(step))
+    batches.take(step)
+
+
+def main():
+    args = Hyperparameters()
+    env = setup_distributed()
+    if args.train_seed is not None:
+        torch.manual_seed(args.train_seed)
+
+    # Tokens per rank of the largest training batch, and of a validation batch.
+    max_step_tokens = max(s.batch_size for s in TRAINING_STAGES) // env.world_size
+    val_tokens_per_rank = args.val_batch_size // env.world_size
+    # Pinned slots for every batch's H2D copies, training and validation (perf/pinned_batches.py), sized
+    # for the largest batch per rank either reads.
+    batch_tokens = [s.batch_size // env.world_size for s in TRAINING_STAGES] + [val_tokens_per_rank]
+    batch_staging = PinnedBatchStaging(max(batch_tokens), max(map(cu_seqlens_rows, batch_tokens)), env.device)
+
+    def train_loader():
+        return distributed_data_generator(
+            args.train_files, TRAINING_STAGES[0].batch_size, TRAINING_STAGES[0].train_max_seq_len, batch_staging,
         )
-        return out, x_f8, w_f8
 
-    return impl(x, w)
+    def val_loader():
+        return distributed_data_generator(args.val_files, args.val_batch_size, -1, batch_staging, align_to_bos=False)
 
-@mm_op.register_fake
-def _(x: Tensor, w: Tensor, *_):
-    assert x.ndim == w.ndim == 2
-    assert x.shape[1] == w.shape[1]
-    assert x.device == w.device
-    assert x.is_contiguous() and w.is_contiguous()
-    return x @ w.T, x.to(torch.float8_e4m3fn), w.to(torch.float8_e4m3fn)
-
-@torch.library.custom_op("nanogpt::mm_backward", mutates_args=())
-def mm_backward_op(g: Tensor, x_f8: Tensor, w_f8: Tensor, x_s: float, w_s: float, grad_s: float) -> tuple[Tensor, Tensor]:
-    @torch.compile
-    def impl(grad: Tensor, x_f8: Tensor, w_f8: Tensor):
-        assert grad.is_contiguous()
-        x_inv_s = grad.new_tensor(x_s, dtype=torch.float32)
-        w_inv_s = grad.new_tensor(w_s, dtype=torch.float32)
-        grad_inv_s = grad.new_tensor(grad_s, dtype=torch.float32)
-        grad_f8 = grad.div(grad_s).to(torch.float8_e5m2)
-        grad_x = torch._scaled_mm(
-            grad_f8,
-            w_f8.T.contiguous().T,
-            out_dtype=torch.bfloat16,
-            scale_a=grad_inv_s,
-            scale_b=w_inv_s,
-            use_fast_accum=False,
-        )
-        # faster than grad_f8_t @ x_f8, for (d_out, d_in) == (50304, 768)
-        grad_w = torch._scaled_mm(
-            x_f8.T.contiguous(),
-            grad_f8.T.contiguous().T,
-            out_dtype=torch.float32,
-            scale_a=x_inv_s,
-            scale_b=grad_inv_s,
-            use_fast_accum=False,
-        ).T
-        return grad_x, grad_w
-
-    return impl(g, x_f8, w_f8)
-
-@mm_backward_op.register_fake
-def _(g: Tensor, x_f8: Tensor, w_f8: Tensor, *_):
-    return x_f8.to(torch.bfloat16), w_f8.T.contiguous().T.to(torch.float32)
-
-def backward(ctx, grad_out: Tensor, *_):
-    x_f8, w_f8 = ctx.saved_tensors
-    x_s, w_s, grad_s = ctx.scales
-    grad_x, grad_w = torch.ops.nanogpt.mm_backward(
-        grad_out, x_f8, w_f8, x_s, w_s, grad_s
+    training_schedule = TrainingSchedule(
+        TRAINING_STAGES, args.num_scheduled_iterations, args.num_extension_iterations, device=env.device,
+        cooldown_frac=LR_COOLDOWN_FRAC, split_embed_stage=SPLIT_EMBED_STAGE, ws_post_yarn_ext=WS_POST_YARN_EXT,
     )
-    return grad_x, grad_w, None, None, None
 
-def setup_context(ctx: torch.autograd.function.FunctionCtx, inputs, output):
-    *_, x_s, w_s, grad_s = inputs
-    _, x_f8, w_f8 = output
-    ctx.save_for_backward(x_f8, w_f8)
-    ctx.scales = x_s, w_s, grad_s
-    ctx.set_materialize_grads(False)
+    print0, flush_log = start_run_log(env.master_process, args.run_id)
+    log_environment(print0, code)
+    flush_log()
 
-mm_op.register_autograd(backward, setup_context=setup_context)
-
-# -----------------------------------------------------------------------------
-# Muon optimizer
-
-@torch.compile
-def zeropower_via_newtonschulz5(G: Tensor, steps: int) -> Tensor:
-    """
-    Newton-Schulz iteration to compute the zeroth power / orthogonalization of G. We opt to use a
-    quintic iteration whose coefficients are selected to maximize the slope at zero. For the purpose
-    of minimizing steps, it turns out to be empirically effective to keep increasing the slope at
-    zero even beyond the point where the iteration no longer converges all the way to one everywhere
-    on the interval. This iteration therefore does not produce UV^T but rather something like US'V^T
-    where S' is diagonal with S_{ii}' ~ Uniform(0.5, 1.5), which turns out not to hurt model
-    performance at all relative to UV^T, where USV^T = G is the SVD.
-    """
-    assert G.ndim >= 2 # batched Muon implementation by @scottjmaddox, and put into practice in the record by @YouJiacheng
-    a, b, c = (3.4445, -4.7750,  2.0315)
-    X = G.bfloat16()
-    if G.size(-2) > G.size(-1):
-        X = X.mT
-
-    # Ensure spectral norm is at most 1
-    X = X / (X.norm(dim=(-2, -1), keepdim=True) + 1e-7)
-    # Perform the NS iterations
-    for _ in range(steps):
-        A = X @ X.mT
-        B = b * A + c * A @ A # quintic computation strategy adapted from suggestion by @jxbz, @leloykun, and @YouJiacheng
-        X = a * X + B @ X
-    
-    if G.size(-2) > G.size(-1):
-        X = X.mT
-    return X
-
-class Muon(torch.optim.Optimizer):
-    """
-    Muon - MomentUm Orthogonalized by Newton-schulz
-
-    https://kellerjordan.github.io/posts/muon/
-
-    Muon internally runs standard SGD-momentum, and then performs an orthogonalization post-
-    processing step, in which each 2D parameter's update is replaced with the nearest orthogonal
-    matrix. To efficiently orthogonalize each update, we use a Newton-Schulz iteration, which has
-    the advantage that it can be stably run in bfloat16 on the GPU.
-
-    Some warnings:
-    - This optimizer should not be used for the embedding layer, the final fully connected layer,
-    or any {0,1}-D parameters; those should all be optimized by a standard method (e.g., AdamW).
-    - To use it with 4D convolutional filters, it works well to just flatten their last 3 dimensions.
-
-    Arguments:
-        lr: The learning rate used by the internal SGD.
-        momentum: The momentum used by the internal SGD.
-        nesterov: Whether to use Nesterov-style momentum in the internal SGD. (recommended)
-        ns_steps: The number of Newton-Schulz iteration steps to use.
-    """
-    def __init__(self, params, lr=0.02, momentum=0.95, nesterov=True, ns_steps=5, rank=0, world_size=1):
-        self.rank = rank
-        self.world_size = world_size
-        defaults = dict(lr=lr, momentum=momentum, nesterov=nesterov, ns_steps=ns_steps)
-        params: list[Tensor] = [*params]
-        param_groups = []
-        for size in {p.numel() for p in params}:
-            b = torch.empty(world_size, size, dtype=torch.bfloat16, device="cuda")
-            group = dict(params=[p for p in params if p.numel() == size],
-                         update_buffer=b, update_buffer_views=[b[i] for i in range(world_size)])
-            param_groups.append(group)
-        super().__init__(param_groups, defaults)
-
-    @torch.no_grad()
-    def step(self):
-        for group in self.param_groups:
-            update_buffer: Tensor = group["update_buffer"]
-            update_buffer_views: list[Tensor] = group["update_buffer_views"]
-            # generate weight updates in distributed fashion
-            params: list[Tensor] = group["params"]
-            handle = None
-            params_world = None
-            def update_prev(): # optimized Muon implementation contributed by @YouJiacheng
-                handle.wait()
-                for p_world, g_world in zip(params_world, update_buffer_views):
-                    p_world.add_(g_world.view_as(p_world),
-                                 alpha=-group["lr"] * max(1, p_world.size(-2) / p_world.size(-1))**0.5)
-            for base_i in range(len(params))[::self.world_size]:
-                if base_i + self.rank < len(params):
-                    p = params[base_i + self.rank]
-                    g = p.grad
-                    assert g is not None
-                    state = self.state[p]
-                    if "momentum_buffer" not in state:
-                        state["momentum_buffer"] = torch.zeros_like(g)
-                    buf: Tensor = state["momentum_buffer"]
-                    buf.lerp_(g, 1 - group["momentum"])
-                    g = g.lerp_(buf, group["momentum"]) if group["nesterov"] else buf
-                    g = zeropower_via_newtonschulz5(g, steps=group["ns_steps"]).flatten()
-                else:
-                    g = update_buffer_views[self.rank]
-                if base_i > 0:
-                    update_prev() # async all_gather instead of sync all_reduce by @YouJiacheng
-                handle = dist.all_gather_into_tensor(update_buffer, g, async_op=True)
-                params_world = params[base_i : base_i + self.world_size]
-            update_prev()
-
-# -----------------------------------------------------------------------------
-# PyTorch nn.Module definitions for the model
-
-def norm(x: Tensor):
-    return F.rms_norm(x, (x.size(-1),))
-
-class CastedLinear(nn.Linear):
-    def __init__(self, in_features: int, out_features: int, use_fp8=False, x_s=1.0, w_s=1.0, grad_s=1.0):
-        super().__init__(in_features, out_features, bias=False)
-        self.use_fp8 = use_fp8
-        self.x_s = x_s
-        self.w_s = w_s
-        self.grad_s = grad_s
-
-    def reset_parameters(self) -> None:
-        std = 0.5 * (self.in_features ** -0.5) # 0.5 is a bit better than the default 1/sqrt(3)
-        bound = (3 ** 0.5) * std
-        with torch.no_grad():
-            self.weight.uniform_(-bound, bound)
-
-    def forward(self, x: Tensor):
-        if self.use_fp8 and self.training:
-            _x = x.flatten(0, -2)
-            out: Tensor = torch.ops.nanogpt.mm(_x, self.weight, x_s=self.x_s, w_s=self.w_s, grad_s=self.grad_s)[0]
-            return out.reshape(*x.shape[:-1], -1)
-        else:
-            return F.linear(x, self.weight.type_as(x))
-
-class Rotary(nn.Module):
-    def __init__(self, dim: int, max_seq_len: int):
-        super().__init__()
-        # half-truncate RoPE by @YouJiacheng (w/ base freq tuning)
-        angular_freq = (1 / 1024) ** torch.linspace(0, 1, steps=dim//4, dtype=torch.float32)
-        angular_freq = torch.cat([angular_freq, angular_freq.new_zeros(dim//4)])
-        t = torch.arange(max_seq_len, dtype=torch.float32)
-        theta = torch.einsum("i,j -> ij", t, angular_freq)
-        self.cos = nn.Buffer(theta.cos(), persistent=False)
-        self.sin = nn.Buffer(theta.sin(), persistent=False)
-
-    def forward(self, x_BTHD: Tensor):
-        assert self.cos.size(0) >= x_BTHD.size(-3)
-        cos, sin = self.cos[None, :x_BTHD.size(-3), None, :], self.sin[None, :x_BTHD.size(-3), None, :]
-        x1, x2 = x_BTHD.to(dtype=torch.float32).chunk(2, dim=-1)
-        y1 = x1 * cos + x2 * sin
-        y2 = x1 * (-sin) + x2 * cos
-        return torch.cat((y1, y2), 3).type_as(x_BTHD)
-
-class CausalSelfAttention(nn.Module):
-    def __init__(self, dim: int, num_heads: int, max_seq_len: int, head_dim=128):
-        super().__init__()
-        self.num_heads = num_heads
-        self.head_dim = head_dim
-        hdim = num_heads * head_dim
-        std = 0.5 * (dim ** -0.5)
-        bound = (3 ** 0.5) * std # improved init scale by @YouJiacheng
-        # merged QKV weights: suggested by many, implemented by @fernbear.bsky.social, and further improved by @YouJiacheng
-        # https://x.com/hi_tysam/status/1879699187107033311
-        self.qkv_w = nn.Parameter(torch.empty(3, hdim, dim).uniform_(-bound, bound))
-        self.lambdas = nn.Parameter(torch.tensor([0.5, 0.5]))
-        self.rotary = Rotary(head_dim, max_seq_len)
-        self.c_proj = CastedLinear(hdim, dim)
-        self.c_proj.weight.detach().zero_() # zero init suggested by @Grad62304977
-
-    def forward(self, x: Tensor, ve: Tensor | None, block_mask: BlockMask):
-        B, T = x.size(0), x.size(1) # batch size, sequence length
-        assert B == 1, "Must use batch size = 1 for FlexAttention"
-        q, k, v = F.linear(x, self.qkv_w.flatten(end_dim=1).type_as(x)).view(B, T, 3 * self.num_heads, self.head_dim).chunk(3, dim=-2)
-        q, k = norm(q), norm(k) # QK norm @Grad62304977
-        q, k = self.rotary(q), self.rotary(k)
-        if ve is not None:
-            v = self.lambdas[0] * v + self.lambdas[1] * ve.view_as(v) # @KoszarskyB & @Grad62304977
-        else: # skip mid-layers token value embeddings by @YouJiacheng
-            v = self.lambdas[0] * v
-        # scale the attention logits by given constant, instead of the default head_dim**-0.5, by @leloykun
-        # inspired by learnable scalars used by @brendanh0gan https://x.com/hi_tysam/status/1879693583898591283
-        y = flex_attention(q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2), block_mask=block_mask, scale=0.12).transpose(1, 2)
-        y = y.contiguous().view(B, T, self.num_heads * self.head_dim) # re-assemble all head outputs side by side
-        y = self.c_proj(y)
-        return y
-
-class MLP(nn.Module):
-    def __init__(self, dim: int):
-        super().__init__()
-        hdim = 4 * dim
-        self.c_fc = CastedLinear(dim, hdim)
-        self.c_proj = CastedLinear(hdim, dim)
-        self.c_proj.weight.detach().zero_() # zero init suggested by @Grad62304977
-
-    def forward(self, x: Tensor):
-        x = self.c_fc(x)
-        x = F.relu(x).square() # https://arxiv.org/abs/2109.08668v2; ~1-2% better than GELU; suggested by @SKYLINEZ007 and @Grad62304977
-        x = self.c_proj(x)
-        return x
-
-class Block(nn.Module):
-    def __init__(self, dim: int, num_heads: int, max_seq_len: int, layer_idx: int):
-        super().__init__()
-        # skip attention of blocks.7 (the 8th layer) by @YouJiacheng
-        self.attn = CausalSelfAttention(dim, num_heads, max_seq_len) if layer_idx != 7 else None
-        self.mlp = MLP(dim)
-        self.lambdas = nn.Parameter(torch.tensor([1., 0.]))
-
-    def forward(self, x: Tensor, ve: Tensor | None, x0: Tensor, block_mask: BlockMask):
-        x = self.lambdas[0] * x + self.lambdas[1] * x0
-        if self.attn is not None:
-            x = x + self.attn(norm(x), ve, block_mask)
-        x = x + self.mlp(norm(x))
-        return x
-
-# -----------------------------------------------------------------------------
-# The main model
-
-def next_multiple_of_n(v: float | int, *, n: int):
-    return next(x for x in range(n, int(v) + 1 + n, n) if x >= v)
-
-class GPT(nn.Module):
-    def __init__(self, vocab_size: int, num_layers: int, num_heads: int, model_dim: int, max_seq_len: int):
-        super().__init__()
-        self.embed = nn.Embedding(vocab_size, model_dim)
-        # token value embeddings by @KoszarskyB - inspired by @Grad62304977's value residual implementation following https://arxiv.org/abs/2410.17897
-        # value embedding code simplification inspired by @ragulpr https://github.com/KellerJordan/modded-nanogpt/pull/78
-        self.value_embeds = nn.ModuleList([nn.Embedding(vocab_size, model_dim) for _ in range(3)])
-        self.blocks = nn.ModuleList([Block(model_dim, num_heads, max_seq_len, i) for i in range(num_layers)])
-        # there are only 50257 unique GPT-2 tokens; we extend to nearest multiple of 128 for efficiency.
-        # suggested to me by @Grad62304977. this originates from Karpathy's experiments.
-        self.lm_head = CastedLinear(model_dim, next_multiple_of_n(vocab_size, n=128),
-                                    use_fp8=True, x_s=(model_dim**0.5)/448, w_s=24/448, grad_s=1/448)
-        self.lm_head.weight.detach().zero_() # @Grad62304977
-        # Add learnable skip connection weights for decoder layers
-        assert num_layers % 2 == 0
-        self.skip_weights = nn.Parameter(torch.ones(num_layers//2))
-
-    def create_blockmasks(self, input_seq: Tensor, sliding_window_num_blocks: Tensor):
-        BLOCK_SIZE = 128
-        docs = (input_seq == 50256).cumsum(0)
-
-        def document_causal(b, h, q_idx, kv_idx):
-            causal_mask = q_idx >= kv_idx
-            document_mask = docs[q_idx] == docs[kv_idx]
-            return causal_mask & document_mask
-
-        def dense_to_ordered(dense_blockmask: Tensor):
-            num_blocks = dense_blockmask.sum(dim=-1, dtype=torch.int32)
-            indices = dense_blockmask.argsort(dim=-1, descending=False, stable=True).flip(-1).to(torch.int32)
-            return num_blocks[None, None].contiguous(), indices[None, None].contiguous()
-
-        # manual block mask creation by @YouJiacheng
-        assert len(input_seq) % BLOCK_SIZE == 0
-        NUM_BLOCKS = len(input_seq) // BLOCK_SIZE
-        block_idx = torch.arange(NUM_BLOCKS, dtype=torch.int32, device="cuda")
-        causal_blockmask_any = block_idx[:, None] >= block_idx
-        causal_blockmask_all = block_idx[:, None] > block_idx
-        docs_low = docs.view(-1, BLOCK_SIZE)[:, 0].contiguous()
-        docs_high = docs.view(-1, BLOCK_SIZE)[:, -1].contiguous()
-        document_blockmask_any = (docs_low[:, None] <= docs_high) & (docs_high[:, None] >= docs_low)
-        document_blockmask_all = (docs_low[:, None] == docs_high) & (docs_high[:, None] == docs_low)
-        blockmask_any = causal_blockmask_any & document_blockmask_any
-        blockmask_all = causal_blockmask_all & document_blockmask_all
-        partial_kv_num_blocks, partial_kv_indices = dense_to_ordered(blockmask_any & ~blockmask_all)
-        full_kv_num_blocks, full_kv_indices = dense_to_ordered(blockmask_all)
-        def build_bm(window_size_blocks: Tensor) -> BlockMask:
-            return BlockMask.from_kv_blocks(
-                torch.clamp_max(partial_kv_num_blocks, torch.clamp_min(window_size_blocks - full_kv_num_blocks, 1)),
-                partial_kv_indices,
-                torch.clamp_max(full_kv_num_blocks, window_size_blocks - 1),
-                full_kv_indices,
-                BLOCK_SIZE=BLOCK_SIZE,
-                mask_mod=document_causal,
-            )
-        # Long-short SWA block masks by @leloykun & @YouJiacheng, adapated from suggestion by @Grad62304977, following Gemma 2 paper
-        return build_bm(sliding_window_num_blocks), build_bm(sliding_window_num_blocks // 2)
-
-    def forward(self, input_seq: Tensor, target_seq: Tensor, sliding_window_num_blocks: Tensor):
-        assert input_seq.ndim == 1
-
-        ve = [value_embed(input_seq) for value_embed in self.value_embeds]
-        # 012 ... 012 structure on token value embeddings by @YouJiacheng, improved on @leloykun's U-net structure
-        ve = [ve[0], ve[1], ve[2]] + [None] * (len(self.blocks) - 6) + [ve[0], ve[1], ve[2]]
-        assert len(ve) == len(self.blocks)
-
-        long_bm, short_bm = self.create_blockmasks(input_seq, sliding_window_num_blocks)
-        block_masks = [long_bm, short_bm, short_bm, short_bm, long_bm, short_bm, short_bm, long_bm, short_bm, short_bm, short_bm, long_bm]
-        assert len(block_masks) == len(self.blocks)
-
-        x = x0 = norm(self.embed(input_seq)[None]) # use of norm here by @Grad62304977
-
-        # U-net design by @brendanh0gan
-        skip_connections = []
-        n = len(self.skip_weights)
-        for i in range(len(self.blocks)):
-            if i >= n:
-                x = x + self.skip_weights[i - n] * skip_connections.pop()
-            x = self.blocks[i](x, ve[i], x0, block_masks[i])
-            if i < n:
-                skip_connections.append(x)
-
-        x = norm(x)
-        logits = self.lm_head(x).float()
-        # @Grad62304977 added tanh softcapping following Gemma 2 paper, @KoszarskyB reduced it from 30 to 15, @YouJiacheng shifted it by +15 (2*sigmoid(2*x)=tanh(x)+1)
-        logits = 30 * torch.sigmoid(logits / (7.5 * x.size(-1)**0.5))
-        loss = F.cross_entropy(logits.view(-1, logits.size(-1)), target_seq, reduction='sum' if self.training else 'mean')
-        return loss
-
-# -----------------------------------------------------------------------------
-# Our own simple Distributed Data Loader
-
-def _load_data_shard(file: Path):
-    header = torch.from_file(str(file), False, 256, dtype=torch.int32) # header is 256 int32
-    assert header[0] == 20240520, "magic number mismatch in the data .bin file"
-    assert header[1] == 1, "unsupported version"
-    num_tokens = int(header[2]) # number of tokens (claimed)
-    with file.open("rb", buffering=0) as f:
-        tokens = torch.empty(num_tokens, dtype=torch.uint16, pin_memory=True) # avoid pin_memory copy by @YouJiacheng
-        f.seek(256 * 4)
-        nbytes = f.readinto(tokens.numpy()) # avoid bytes->array copy by @YouJiacheng
-        assert nbytes == 2 * num_tokens, "number of tokens read does not match header"
-    return tokens
-
-def distributed_data_generator(filename_pattern: str, batch_size: int, rank : int, world_size : int):
-    files = [Path(file) for file in sorted(glob.glob(filename_pattern))]
-    assert batch_size % world_size == 0
-    local_batch_size = batch_size // world_size
-    file_iter = iter(files) # use itertools.cycle(files) instead if you want to do multi-epoch training
-    tokens, pos = _load_data_shard(next(file_iter)), 0
-    while True:
-        if pos + batch_size + 1 >= len(tokens):
-            tokens, pos = _load_data_shard(next(file_iter)), 0
-        buf = tokens[pos + rank * local_batch_size:][:local_batch_size + 1]
-        inputs = buf[:-1].to(device="cuda", dtype=torch.int32, non_blocking=True) # no sync on host side;
-        targets = buf[1:].to(device="cuda", dtype=torch.int64, non_blocking=True) # H2D in another stream isn't helpful.
-        pos += batch_size
-        yield inputs, targets
-
-# -----------------------------------------------------------------------------
-# int main
-
-@dataclass
-class Hyperparameters:
-    # data
-    train_files = "data/fineweb10B/fineweb_train_*.bin" # input .bin to train on
-    val_files = "data/fineweb10B/fineweb_val_*.bin" # input .bin to eval validation loss on
-    val_tokens = 10485760 # how many tokens of validation data? it's important to keep this fixed for consistent comparisons
-    train_seq_len = 48*1024 # FlexAttention sequence length
-    val_seq_len = 4*64*1024 # FlexAttention sequence length for validation
-    # optimization
-    num_iterations = 1770 # number of iterations to run
-    cooldown_frac = 0.4 # fraction of training spent cooling down the learning rate
-    # architecture
-    vocab_size = 50257
-    # evaluation and logging
-    val_loss_every = 125 # every how many steps to evaluate val loss? 0 for only at the end
-    save_checkpoint = False
-args = Hyperparameters()
-
-# torchrun sets these env variables
-rank = int(os.environ["RANK"])
-world_size = int(os.environ["WORLD_SIZE"])
-assert world_size == 8 # this code is designed for 8xH100
-assert torch.cuda.is_available()
-device = torch.device("cuda", int(os.environ["LOCAL_RANK"]))
-torch.cuda.set_device(device)
-dist.init_process_group(backend="nccl", device_id=device)
-dist.barrier()
-master_process = (rank == 0) # this process will do logging, checkpointing etc.
-
-# begin logging
-logfile = None
-if master_process:
-    run_id = uuid.uuid4()
-    os.makedirs("logs", exist_ok=True)
-    logfile = f"logs/{run_id}.txt"
-    print(logfile)
-def print0(s, console=False):
-    if master_process:
-        with open(logfile, "a") as f:
-            if console:
-                print(s)
-            print(s, file=f)
-
-# begin by printing this file (the Python code)
-print0(code)
-print0("="*100)
-# log information about the hardware/software environment this is running on
-print0(f"Running Python {sys.version}")
-print0(f"Running PyTorch {torch.version.__version__} compiled for CUDA {torch.version.cuda}")
-def nvidia_smi():
-    import subprocess  # avoid top level import
-    return subprocess.run(["nvidia-smi"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True).stdout
-print0(nvidia_smi())
-print0("="*100)
-
-########################################
-#    Construct model and optimizer     #
-########################################
-
-model: nn.Module = GPT(vocab_size=args.vocab_size, num_layers=12, num_heads=6, model_dim=768,
-                       max_seq_len=max(args.train_seq_len, args.val_seq_len)).cuda()
-for m in model.modules():
-    if isinstance(m, nn.Embedding):
-        m.bfloat16()
-for param in model.parameters():
-    dist.broadcast(param.detach(), 0)
-
-# collect the parameters to optimize
-hidden_matrix_params = [p for n, p in model.blocks.named_parameters() if p.ndim >= 2 and "embed" not in n]
-embed_params = [p for n, p in model.named_parameters() if "embed" in n]
-scalar_params = [p for p in model.parameters() if p.ndim < 2]
-head_params = [model.lm_head.weight]
-
-# init the optimizer(s)
-adam_params = [dict(params=head_params, lr=0.22), dict(params=embed_params, lr=0.6), dict(params=scalar_params, lr=0.04)]
-# small adam epsilon by @YouJiacheng. this is an alternate method of fixing the world_size dependence
-# discovered by @fernbear.bsky.social https://x.com/hi_tysam/status/1879692937589875094
-optimizer1 = torch.optim.Adam(adam_params, betas=(0.8, 0.95), eps=1e-10, fused=True)
-optimizer2 = Muon(hidden_matrix_params, lr=0.05, momentum=0.95, rank=rank, world_size=world_size)
-optimizers = [optimizer1, optimizer2]
-for opt in optimizers:
-    for group in opt.param_groups:
-        group["initial_lr"] = group["lr"]
-
-# learning rate schedule: stable then decay
-def get_lr(step: int):
-    x = step / args.num_iterations # progress in training
-    assert 0 <= x < 1
-    if x < 1 - args.cooldown_frac:
-        return 1.0
-    else:
-        w = (1 - x) / args.cooldown_frac
-        return w * 1.0 + (1 - w) * 0.1
-
-# attention window size schedule: linearly increase
-@lru_cache(1)
-def get_window_size_blocks_helper(window_size: int):
-    return torch.tensor(window_size // 128, dtype=torch.int32, pin_memory=True).cuda(non_blocking=True)
-def get_window_size_blocks(step: int):
-    x = step / args.num_iterations # progress in training
-    assert 0 <= x <= 1
-    # Linearly increase the block-wise sliding window size over training 128 -> 1792
-    # increase by @fernbear.bsky.social; block-wise by @YouJiacheng
-    window_size = next_multiple_of_n(1728 * x, n=128)
-    return get_window_size_blocks_helper(window_size)
-
-model: nn.Module = torch.compile(model, dynamic=False)
-
-########################################
-#            Warmup kernels            #
-########################################
-
-# Warmup the training kernels, then re-initialize the state so we aren't cheating
-warmup_steps = 10
-initial_state = dict(model=copy.deepcopy(model.state_dict()),
-                     optimizers=[copy.deepcopy(opt.state_dict()) for opt in optimizers]) # save the initial state
-for _ in range(warmup_steps):
-    inputs = targets = torch.randint(0, args.vocab_size, size=(args.train_seq_len,), device="cuda")
-    model(inputs.to(torch.int32), targets, get_window_size_blocks(0)).backward()
+    ########################################
+    #          Model and optimizer         #
+    ########################################
+    model: nn.Module = GPT(
+        vocab_size=50257,
+        num_layers=11,
+        num_heads=6,
+        head_dim=128,
+        model_dim=768,
+        max_seq_len=val_tokens_per_rank,
+        ngram_dim=NGRAM_DIM,
+        world_size=env.world_size,
+        device=env.device,
+    ).cuda()
+    attn_widths = {layer: (model.attn_qk_dim(layer), model.attn_v_dim(layer)) for layer in ATTN_BANK_ORDER}
+    print0(
+        f"attention heads={model.num_heads} (qk, v) head widths by layer, in bank order={attn_widths} "
+        f"seed={'random' if args.train_seed is None else args.train_seed} "
+        f"steps={training_schedule.total_steps} stage boundaries={training_schedule.boundaries}"
+    )
+    model.cast_matrix_weights_bf16()
     for param in model.parameters():
-        dist.all_reduce(param.grad, op=dist.ReduceOp.AVG)
-    for opt in optimizers:
-        opt.step()
+        dist.broadcast(param.detach(), 0)
+    dist.broadcast(model.ngram_sign_pool, 0)  # buffer, not in parameters()
+    # The hashed n-gram table: 1/world_size of its rows on each rank, with its own sparse Adam. Not a
+    # model parameter, so neither the broadcast above nor the state_dict below ever holds it.
+    ngram_table = NgramTable(model.ngram_cache, max_step_tokens=max_step_tokens,
+                             max_events=training_schedule.total_steps,
+                             rank=env.rank, world_size=env.world_size, device=env.device)
+    # The row prefetch's pinned upload rings and prep thread, allocated and started off the clock.
+    prefetch_staging = PrefetchStaging(max_ngram_rows=2 * MAX_CYCLE_STEPS * max_step_tokens,
+                                       max_value_embed_rows=model.value_embeds.shape[0], device=env.device)
+    model.quantize_attn_fp8()
+    model.quantize_mlp_fp8(refresh_lm=True)
+    # The fused MLP kernel picks its pipeline depth by trial launch, which cannot run under compile.
+    prime_stage_cache()
+
+    # Early steps train on a sampled softmax (see track_1_short/sampled_softmax.py).
+    sampled_softmax = SampledSoftmax(
+        training_schedule, model.vocab_size, model_dim=model.lm_head.in_features, max_rows=max_step_tokens,
+        rank=env.rank, world_size=env.world_size, device=env.device,
+    )
+    print0(f"sampled softmax: P by step change {[(s, sampled_softmax.counts[s]) for s in [0, *sampled_softmax.count_change_steps()]]}")
+
+    uncompiled_model = model  # the CUDA-graph owners read and set attributes on the module itself
+    model: nn.Module = torch.compile(model, dynamic=False, fullgraph=True)
+    # The ANVIL bank updates run through their CUDA graphs once captured (eagerly before).
+    optimizer_graphs = AnvilBankGraphs(env.device)
+    training_manager = TrainingManager(model, training_schedule, bank_update=optimizer_graphs.update)
+    # value_embeds' gradient buffer, row-sparse update and replica pulls, on the n-gram table's cycles.
+    value_embed_pull = ValueEmbedPull(model.value_embeds, model.vocab_size, training_manager.optimizer,
+                                      rank=env.rank, world_size=env.world_size, device=env.device)
+    tail_averages = TailAverages(training_manager.optimizer, env.rank, value_embed_updates=is_update_step,
+                                 total_steps=training_schedule.total_steps)
+
+    # CUDA graphs (track_1_short/perf/cuda_graphs/): the training step's forward and backward per
+    # configuration, the ANVIL bank updates, and the fp8 weight refresh. All are captured in the warmup
+    # below and only replayed on the clock.
+    step_keys = [step_graph_key(training_schedule, sampled_softmax.counts, s, env.world_size)
+                 for s in range(training_schedule.total_steps)]
+    step_graphs = StepGraphs(model, training_manager.optimizer, step_keys, ngram_table, value_embed_pull,
+                             max_step_tokens, env.device)
+    fp8_refresh = Fp8RefreshGraphs(uncompiled_model)
+    deferred_gathers = DeferredGathers(value_embed_pull, fp8_refresh)
+
+    ########################################
+    #            Warmup kernels            #
+    ########################################
+    print0("Compiling model, warming up kernels and capturing CUDA graphs (~7 minutes on first execution)", console=True)
+    # Warmup the training kernels, then re-initialize the state so we aren't cheating. The n-gram
+    # table (16 GB per rank) is not copied: it starts at zero, so ngram_table.reset() restores it.
+    initial_state = dict(model=copy.deepcopy(model.state_dict()),
+                         optimizer=training_manager.get_state())  # save the initial state
+
+    # Each stage start and each sampled-softmax count change begins a new compiled graph.
+    transition_steps = sorted(set(training_manager.get_transition_steps()) | set(sampled_softmax.count_change_steps()))
+    # first and last pair of steps in each transition, plus the first Adam steps after the embed split
+    # (a new optimizer path for embed)
+    split_step = training_schedule.split_step
+    compile_steps = sorted({0, 1} | {s + offset for s in transition_steps for offset in [-2, -1, 0, 1] if s + offset >= 2}
+                           | {split_step + offset for offset in [1, 2, 3] if split_step + offset < training_schedule.total_steps})
+    # Plus the visits the graph captures and their self-checks need (perf/cuda_graphs/capture_plan.py).
+    capture_plan = plan_warmup(compile_steps, step_keys, training_manager.is_adam_step, FP8_EXACT_SCALE_CALLS)
+    warmup_steps = capture_plan.steps
+    assert split_step in warmup_steps, "the embed split must happen during warmup for the steps after it to be warm"
+    sampled_softmax.assert_warmup_covers(warmup_steps)
+    print0(f"Sampling steps {warmup_steps} for warmup; {len(capture_plan.visits)} step-graph configurations "
+           f"(warmup visits {sorted(capture_plan.visits.values())}); optimizer graphs captured at step "
+           f"{warmup_steps[capture_plan.optimizer_capture_at]}, fp8 refresh graphs at step "
+           f"{warmup_steps[capture_plan.fp8_capture_at]}", console=True)
+    warmup_batches = ScheduledBatches(train_loader(), training_schedule, steps=warmup_steps)
+    # The warmup runs the same row prefetch over its (non-consecutive) steps. The tables update on
+    # every Adam step there, so every warmup cycle fits the cache; the cadence only changes scalars.
+    warmup_prefetch = RowPrefetch(ngram_table, value_embed_pull, warmup_batches, warmup_steps,
+                                  training_manager.is_adam_step, prefetch_staging)
+    for position, step in enumerate(warmup_steps):
+        training_manager.advance_schedule(step)
+        deferred_gathers.flush()
+        # The tail captures, between steps with nothing in flight (see capture_plan.py for the positions).
+        if position == capture_plan.optimizer_capture_at:
+            optimizer_graphs.capture([training_manager.optimizer.banks[label] for label in training_manager.work_order
+                                      if label in training_manager.optimizer.banks])
+        if position == capture_plan.fp8_capture_at:
+            fp8_refresh.capture()
+        # Warmup steps are not consecutive, so no sampled-softmax build is prefetched.
+        train_step(training_manager, step_graphs, warmup_prefetch, sampled_softmax, warmup_batches, deferred_gathers,
+                   step, uncompiled_model.lm_head_f8_col, prefetch_next=False)
+    print0("Resetting Model", console=True)
+    deferred_gathers.flush_final()  # the reset below requantizes from the restored weights
+    warmup_prefetch.close()
+    # From here a missing or unchecked graph is fatal: the timed run never captures and never falls back
+    # to eager (except the fp8 refresh's exact-scale bootstrap, which the graphs never cover).
+    step_graphs.seal()
+    optimizer_graphs.seal()
+    fp8_refresh.seal()
+    torch.cuda.synchronize()
+    # Every address a graph baked, before the reset: the reset must restore state in place.
+    addresses = baked_addresses(uncompiled_model, training_manager.optimizer, step_graphs)
     model.zero_grad(set_to_none=True)
-model.load_state_dict(initial_state["model"])
-for opt, opt_state in zip(optimizers, initial_state["optimizers"]):
-    opt.load_state_dict(opt_state)
-del initial_state
+    model.load_state_dict(initial_state["model"])
+    training_manager.reset(initial_state["optimizer"])
+    ngram_table.reset()  # the shard, its Adam state, the live cycle and any unapplied gradient
+    value_embed_pull.reset()  # the live cycle and any unapplied gradient; the replica was restored above
+    sampled_softmax.reset()
+    del warmup_batches, warmup_prefetch, initial_state
+    # The FP8 scales are not in the state_dict: restart them from the restored weights.
+    model.rearm_fp8_bootstrap()
+    model.quantize_attn_fp8()
+    model.quantize_mlp_fp8(refresh_lm=True)
+    model.train()
+    # Replay safety: nothing a graph baked moved, and the optimizer banks still alias the live state.
+    assert_addresses_unchanged(addresses, baked_addresses(uncompiled_model, training_manager.optimizer, step_graphs))
+    assert_banks_alias_live_state(training_manager.optimizer)
+    del addresses
+    print0(f"CUDA graphs sealed: {2 * len(step_graphs.captured)} step, {len(optimizer_graphs.graphs)} optimizer, "
+           f"{len(fp8_refresh.captured)} fp8 refresh; addresses unchanged across the reset", console=True)
 
-########################################
-#        Training and validation       #
-########################################
+    ########################################
+    #        Training and validation       #
+    ########################################
+    batches = ScheduledBatches(train_loader(), training_schedule, steps=range(training_schedule.total_steps))
+    row_prefetch = RowPrefetch(ngram_table, value_embed_pull, batches, range(training_schedule.total_steps),
+                               is_update_step, prefetch_staging)
 
-train_loader = distributed_data_generator(args.train_files, world_size * args.train_seq_len, rank, world_size)
-training_time_ms = 0
-# start the clock
-torch.cuda.synchronize()
-t0 = time.perf_counter()
-# begin training
-train_steps = args.num_iterations
-for step in range(train_steps + 1):
-    last_step = (step == train_steps)
+    # The canonical mask is only needed by the final validation, so rank 0 builds it in a child
+    # process while we train, and model.canon_mask stays all-zero == no masking until then, which
+    # is what the intermediate validations run with. Only the buffer is allocated here; the build
+    # is started below the clock, so its whole cost -- not just its use -- lands in the timed region.
+    canon_mask_builder = BackgroundCanonicalMask(model.vocab_size, owner=env.master_process, print0=print0)
 
-    # --------------- VALIDATION SECTION -----------------
-    if last_step or (args.val_loss_every > 0 and step % args.val_loss_every == 0):
-        # stop the clock
-        torch.cuda.synchronize()
-        training_time_ms += 1000 * (time.perf_counter() - t0)
+    # No cyclic GC inside the timed loop: a multi-ms generation-2 pause on one rank stalls every rank at
+    # the next collective. What survives until now is frozen out of all future scans; the garbage the
+    # loop makes is collected at each validation, with the clock stopped (record #360).
+    gc.collect()
+    gc.freeze()
+    gc.disable()
+
+    # From here a window change rebuilds only the rotary rows a training step reads; each validation
+    # completes the tables first (model/attention.py Yarn; record #360). Warmup rebuilt them whole.
+    uncompiled_model.limit_yarn_rebuild(max_step_tokens)
+
+    training_time_ms = 0
+    # start the clock
+    torch.cuda.synchronize()
+    t0 = time.perf_counter()
+    canon_mask_builder.start()
+    # Prefix-token table build, inside the timed region. The tokenizer was loaded at import
+    # (get_encoding is cached in tiktoken's registry), so this pays only the table construction,
+    # split across ranks: each builds one token bucket and the max over ranks is the whole table.
+    # In-place copy and reduce keep the buffer's tensor identity, which the compiled graph holds.
+    model.prefix_table.copy_(build_prefix_table_bucket(model.vocab_size, bucket=env.rank, num_buckets=env.world_size))
+    dist.all_reduce(model.prefix_table, op=dist.ReduceOp.MAX)
+    # The candidate build maps prefix targets on the host.
+    sampled_softmax.set_prefix_table(model.prefix_table.cpu().numpy())
+    # begin training
+    for step in range(training_schedule.total_steps + 1):
+        last_step = (step == training_schedule.total_steps)
+        training_manager.advance_schedule(step)
+        # --------------- VALIDATION SECTION -----------------
+        if last_step or (args.val_loss_every > 0 and step % args.val_loss_every == 0):
+            # The deferred gathers land first: validation reads the banks and, at the last step, ships
+            # into them.
+            if last_step:
+                # The final fp8 refresh is skipped, not moved off the clock: its one consumer is a
+                # training forward, and the run ends after this validation.
+                deferred_gathers.flush_final()
+                training_manager.apply_final_ws_ext()
+                # Both on the clock: the wait in case the build is somehow not done, and the copy
+                # and broadcast of the result because they are part of the mask's cost.
+                canon_mask_builder.wait()
+                canon_mask_builder.collect(model.canon_mask)
+                # On the clock: evaluate (and keep) the tail-averaged weights, not the final iterate.
+                # The ship also gathers value_embeds whole.
+                tail_averages.ship()
+            else:
+                deferred_gathers.flush()
+                # On the clock: only the live cycle's rows of each value_embeds replica are current, and
+                # validation reads every token (perf/value_embed_pull.py).
+                value_embed_pull.gather_replica()
+            uncompiled_model.complete_yarn_tables()
+            # On the clock (record #360): the table has no replica, so reading the val batches and pulling
+            # their n-gram rows is part of the run's cost. The cache holds one batch, so the untimed loop
+            # below lands each batch's rows again (same routes, no new exchange) right before its forward.
+            assert args.val_tokens % args.val_batch_size == 0
+            val_steps = args.val_tokens // args.val_batch_size
+            val_loader_iter = val_loader()
+            val_batches = [next(val_loader_iter) for _ in range(val_steps)]
+            del val_loader_iter
+            val_pulls = ngram_table.eval_pulls([batch.ngram_ids for batch in val_batches])
+            for pull in val_pulls:
+                ngram_table.land(pull)
+            # stop the clock
+            torch.cuda.synchronize()
+            training_time_ms += 1000 * (time.perf_counter() - t0)
+            model.eval()
+            val_loss = 0
+            with torch.no_grad():
+                for batch, pull in zip(val_batches, val_pulls):
+                    ngram_table.land(pull)
+                    val_loss += model(batch.inputs, batch.targets, batch.cum_seqlens, ngram_table.slots(pull, batch.ngram_ids),
+                                      training_manager.get_forward_args()).mean()
+            val_loss /= val_steps
+            del val_batches, val_pulls
+            dist.reduce(val_loss, 0, op=dist.ReduceOp.AVG)
+            print0(f"step:{step}/{training_schedule.total_steps} val_loss:{val_loss:.4f} train_time:{training_time_ms:.0f}ms step_avg:{training_time_ms/max(step, 1):.2f}ms", console=True)
+            # The clock is stopped: flush the log and collect the loop's garbage here.
+            flush_log()
+            gc.collect()
+            model.train()
+            # start the clock again
+            torch.cuda.synchronize()
+            t0 = time.perf_counter()
+
+        if last_step:
+            # The checkpoint has no n-gram table: it is sharded across ranks and this saves rank 0 only.
+            if env.master_process and args.save_checkpoint:
+                log = dict(step=step, code=code, model=model.state_dict(), optimizer=training_manager.get_state())
+                os.makedirs(f"logs/{args.run_id}", exist_ok=True)
+                torch.save(log, f"logs/{args.run_id}/state_step{step:06d}.pt")
+            # the last step only has the validation loop, so break to avoid training
+            break
+
+        # --------------- TRAINING SECTION -----------------
+        train_step(training_manager, step_graphs, row_prefetch, sampled_softmax, batches, deferred_gathers,
+                   step, uncompiled_model.lm_head_f8_col, prefetch_next=step + 1 < training_schedule.total_steps)
+        tail_averages.tick(step)
+
+        # logging, thinned to every PRINT_EVERY steps and the last two
+        if (step + 1) % PRINT_EVERY == 0 or step + 1 >= training_schedule.total_steps - 1:
+            approx_training_time_ms = training_time_ms + 1000 * (time.perf_counter() - t0)
+            print0(f"step:{step+1}/{training_schedule.total_steps} train_time:{approx_training_time_ms:.0f}ms step_avg:{approx_training_time_ms/(step + 1):.2f}ms", console=True)
+
+    gc.enable()
+    if args.run_evals:
         model.eval()
-        val_batch_size = world_size * args.val_seq_len
-        assert args.val_tokens % val_batch_size == 0
-        val_steps = args.val_tokens // val_batch_size
-        val_loader = distributed_data_generator(args.val_files, val_batch_size, rank, world_size)
-        val_loss = 0
-        with torch.no_grad():
-            for _ in range(val_steps):
-                inputs, targets = next(val_loader)
-                val_loss += model(inputs, targets, get_window_size_blocks(step))
-        val_loss /= val_steps
-        del val_loader
-        dist.all_reduce(val_loss, op=dist.ReduceOp.AVG)
-        print0(f"step:{step}/{train_steps} val_loss:{val_loss:.4f} train_time:{training_time_ms:.0f}ms step_avg:{training_time_ms/max(step, 1):.2f}ms", console=True)
-        model.train()
-        # start the clock again
-        torch.cuda.synchronize()
-        t0 = time.perf_counter()
+        from evals import hellaswag
 
-    if last_step:
-        if master_process and args.save_checkpoint:
-            log = dict(step=step, code=code, model=model.state_dict(), optimizers=[opt.state_dict() for opt in optimizers])
-            os.makedirs(f"logs/{run_id}", exist_ok=True)
-            torch.save(log, f"logs/{run_id}/state_step{step:06d}.pt")
-        # the last step only has the validation loop, so break to avoid training
-        break
+        def ngram_cache_slots(inputs):
+            """hellaswag's get_bigram_hash hook: pulls the tokens' n-gram rows into the model's cache and
+            returns their cache slots, which the forward takes as bigram_input_seq. A collective: every
+            rank must score the same number of sequences."""
+            return ngram_table.load_eval_batch(ngram_row_ids(inputs).to(env.device))
 
-    # --------------- TRAINING SECTION -----------------
-    inputs, targets = next(train_loader)
-    model(inputs, targets, get_window_size_blocks(step)).backward()
-    for param in model.parameters():
-        dist.all_reduce(param.grad, op=dist.ReduceOp.AVG)
-    # set optimization hyperparameters
-    for opt in optimizers:
-        for group in opt.param_groups:
-            group["lr"] = group["initial_lr"] * get_lr(step)
-    for group in optimizer2.param_groups:
-        frac = min(step / 300, 1) # momentum warmup for muon
-        group["momentum"] = (1 - frac) * 0.85 + frac * 0.95
-    # step the optimizers
-    for opt in optimizers:
-        opt.step()
-    # null the gradients
-    model.zero_grad(set_to_none=True)
-    # logging
-    approx_training_time_ms = training_time_ms + 1000 * (time.perf_counter() - t0)
-    print0(f"step:{step+1}/{train_steps} train_time:{approx_training_time_ms:.0f}ms step_avg:{approx_training_time_ms/(step + 1):.2f}ms", console=True)
+        hellaswag.evaluate(model=model, schedule_cfg=training_manager.get_forward_args(),
+                           seq_len=val_tokens_per_rank, get_bigram_hash=ngram_cache_slots, print0=print0)
 
-print0(f"peak memory allocated: {torch.cuda.max_memory_allocated() // 1024 // 1024} MiB "
-       f"reserved: {torch.cuda.max_memory_reserved() // 1024 // 1024} MiB", console=True)
-dist.destroy_process_group()
+    print0(f"peak memory allocated: {torch.cuda.max_memory_allocated() // 1024 // 1024} MiB "
+           f"reserved: {torch.cuda.max_memory_reserved() // 1024 // 1024} MiB", console=True)
+    dist.destroy_process_group()
+
+
+if __name__ == "__main__":
+    main()
