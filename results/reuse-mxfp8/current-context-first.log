@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/home/kedar/projects/inklings2-mini/spark/train.py", line 191, in <module>
+    main()
+  File "/home/kedar/projects/inklings2-mini/spark/train.py", line 79, in main
+    model = GPT(GPTConfig(n_layer=args.layers, n_embd=args.width, n_head=args.heads)).cuda()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1098, in cuda
+    return self._apply(lambda t: t.cuda(device))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 933, in _apply
+    module._apply(fn)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 933, in _apply
+    module._apply(fn)
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 966, in _apply
+    param_applied = fn(param)
+                    ^^^^^^^^^
+  File "/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1098, in <lambda>
+    return self._apply(lambda t: t.cuda(device))
+                                 ^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+The CUDA driver logged these messages, which may provide useful details:
+Returning 2 (CUDA_ERROR_OUT_OF_MEMORY) from cuDevicePrimaryCtxRetain

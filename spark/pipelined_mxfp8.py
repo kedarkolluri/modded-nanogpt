@@ -104,9 +104,15 @@ from activation import activation_backward, pack_activation
 
 class PipelinedMLPFn(torch.autograd.Function):
     @staticmethod
-    def forward(ctx,x,w1,w2,stochastic,buffered):
+    def forward(ctx,x,w1,w2,stochastic,buffered,reuse_weights):
         shape=x.shape
-        if buffered:
+        if reuse_weights:
+            from reuse_mxfp8 import weight_reuse_mm
+            if buffered:
+                z,ax,bw=weight_reuse_mm(x.reshape(-1,shape[-1]),w1,bm=32,bn=128,bk=64,warps=4,buffered=True)
+            else:
+                z,ax,bw=weight_reuse_mm(x.reshape(-1,shape[-1]),w1)
+        elif buffered:
             z,ax,bw=quantized_mm(x.reshape(-1,shape[-1]),w1,bm=32,bn=64,bk=32,stages=1,buffered=True)
         else:
             z,ax,bw=quantized_mm(x.reshape(-1,shape[-1]),w1)
@@ -126,21 +132,22 @@ class PipelinedMLPFn(torch.autograd.Function):
         dz=activation_backward(z,dh)
         dx=native.mx_mm(dz,w.T,ctx.stochastic)
         dw=native.mx_mm(dz.T,x.T,ctx.stochastic)
-        return dx.reshape(ctx.shape),dw,dv,None,None
+        return dx.reshape(ctx.shape),dw,dv,None,None,None
 
 
 class PipelinedMLP(nn.Module):
-    def __init__(self,mlp,buffered=False):
+    def __init__(self,mlp,buffered=False,reuse_weights=False):
         super().__init__()
         self.c_fc,self.c_proj=mlp.c_fc,mlp.c_proj
         self.stochastic=mlp.c_fc.stochastic
         self.buffered=buffered
+        self.reuse_weights=reuse_weights
 
     def forward(self,x):
-        return PipelinedMLPFn.apply(x,self.c_fc.weight,self.c_proj.weight,self.stochastic,self.buffered)
+        return PipelinedMLPFn.apply(x,self.c_fc.weight,self.c_proj.weight,self.stochastic,self.buffered,self.reuse_weights)
 
 
-def replace_mlps(model,buffered=False):
+def replace_mlps(model,buffered=False,reuse_weights=False):
     for block in model.transformer.h:
         if getattr(block.mlp.c_fc,'forward_format',None)=='mxfp8':
-            block.mlp=PipelinedMLP(block.mlp,buffered=buffered)
+            block.mlp=PipelinedMLP(block.mlp,buffered=buffered,reuse_weights=reuse_weights)

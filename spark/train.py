@@ -29,6 +29,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--precision', choices=['bf16', 'fp4-reference-sr', 'fp4-reference-nearest', 'fp4-native-sr', 'fp4-native-nearest', 'mxfp8-native-sr', 'mxfp8-native-nearest', 'torchao-mxfp8'], default='bf16')
     p.add_argument('--fuse-activation', action='store_true')
+    p.add_argument('--reuse-mxfp8-weights', action='store_true', help='Pack weights once per forward and quantize activations inside GEMM; requires --pipeline-mxfp8')
     p.add_argument('--buffered-mxfp8', action='store_true', help='Use explicit quantized lookahead buffers with --pipeline-mxfp8')
     p.add_argument('--pipeline-mxfp8', action='store_true', help='Experimental operand quantization inside first-projection GEMM loop')
     p.add_argument('--fuse-mlp-epilogue', action='store_true', help='Experimental native MXFP8 GEMM/activation/packing kernel')
@@ -73,6 +74,8 @@ def main():
     count = args.batch * args.sequence
     if len(train) < count * args.steps + 1 or len(val) < count * args.eval_batches + 1:
         p.error('Not enough tokens for this run')
+    # Establish the CUDA context before allocating the full CPU parameter set.
+    torch.empty((), device='cuda')
     model = GPT(GPTConfig(n_layer=args.layers, n_embd=args.width, n_head=args.heads)).cuda()
     if args.precision == 'torchao-mxfp8':
         from torchao_backend import replace_mlps as replace_torchao
@@ -92,13 +95,15 @@ def main():
     if args.fuse_mlp_epilogue:
         from fused_mlp_epilogue import replace_mlps as replace_epilogue
         replace_epilogue(model)
+    if args.reuse_mxfp8_weights and not args.pipeline_mxfp8:
+        raise ValueError('--reuse-mxfp8-weights requires --pipeline-mxfp8')
     if args.buffered_mxfp8 and not args.pipeline_mxfp8:
         raise ValueError('--buffered-mxfp8 requires --pipeline-mxfp8')
     if args.pipeline_mxfp8:
         if not args.precision.startswith('mxfp8-native') or args.fuse_mlp_epilogue:
             raise ValueError('Operand pipeline requires native MXFP8 and cannot combine with epilogue experiment')
         from pipelined_mxfp8 import replace_mlps as replace_pipeline
-        replace_pipeline(model,buffered=args.buffered_mxfp8)
+        replace_pipeline(model,buffered=args.buffered_mxfp8,reuse_weights=args.reuse_mxfp8_weights)
     # Match initialization/data across modes. Separate RNG for quantization.
     torch.cuda.manual_seed_all(args.seed + 1000)
     optimizers = [
@@ -122,7 +127,7 @@ def main():
           'native_low_precision_gemm': args.precision.startswith(('fp4-native', 'mxfp8-native', 'torchao-mxfp8')),
           'torchao_version': __import__('torchao').__version__ if args.precision == 'torchao-mxfp8' else None,
           'source_sha256': {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py', 'epilogue.py', 'activation.py', 'torchao_backend.py', 'fused_mlp_epilogue.py', 'pipelined_mxfp8.py')}})
+                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py', 'epilogue.py', 'activation.py', 'torchao_backend.py', 'fused_mlp_epilogue.py', 'pipelined_mxfp8.py', 'reuse_mxfp8.py')}})
     def batch(data, offset):
         z = torch.from_numpy(np.array(data[offset:offset+count+1], dtype=np.int64)).cuda()
         return z[:-1].view(args.batch, args.sequence), z[1:].view(args.batch, args.sequence)
