@@ -1,0 +1,15 @@
+{"config": {"precision": "fp4-native-sr", "pack_backend": "triton", "steps": 100, "layers": 12, "width": 768, "heads": 6, "batch": 32, "sequence": 256, "seed": 42, "eval_every": 50, "eval_batches": 1, "data": "data", "output": "results/fused/b32-fp4-native-sr.jsonl"}, "parameters": 123568128, "torch": "2.14.0+cu130", "gpu": "NVIDIA GB10", "native_low_precision_gemm": true, "source_sha256": {"train.py": "3642c41ec8e46af7bffdf1ceb41b781dbc3347984f30faf32bde5b6a3cc7fbc7", "native.py": "bcd4e21c6563dd4c1774d08dee79255c834441755c95e04afb0ed698dac2ff6d", "triton_pack.py": "1872b9a9058e7266b83c66b2d7a9ad4f698936288170ded962cc772e4ce44b74", "precision.py": "f21bcfca89a17a3fc19a00a43705978a9ed8e037b202917776ef02339864dd87", "record_model.py": "572734c9d2fbd4cd73880b33c09f0e857747cc655ccaa9a3bf55c524dcfa7c74"}}
+{"step": 0, "val_loss": 15.97856330871582, "train_seconds": 0.0}
+{"step": 1, "train_loss": 15.999077796936035, "step_seconds": 4.353001830982976}
+{"step": 11, "train_loss": 7.5947041511535645, "step_seconds": 0.6717878690105863}
+{"step": 21, "train_loss": 7.326903820037842, "step_seconds": 0.6696268209489062}
+{"step": 31, "train_loss": 7.615396022796631, "step_seconds": 0.669006435025949}
+{"step": 41, "train_loss": 7.374166011810303, "step_seconds": 0.667094974021893}
+{"step": 50, "val_loss": 7.375988483428955, "train_seconds": 37.125814730185084}
+{"step": 51, "train_loss": 6.882087230682373, "step_seconds": 0.6652566949487664}
+{"step": 61, "train_loss": 7.457360744476318, "step_seconds": 0.6692224490107037}
+{"step": 71, "train_loss": 6.909078598022461, "step_seconds": 0.6728549370309338}
+{"step": 81, "train_loss": 6.796648979187012, "step_seconds": 0.6948284620302729}
+{"step": 91, "train_loss": 6.669054985046387, "step_seconds": 0.668106650991831}
+{"step": 100, "val_loss": 7.19044303894043, "train_seconds": 71.00264523224905}
+{"finished": true, "tokens": 819200, "train_seconds": 71.00264523224905, "warmup_excluded_steps": 5, "steady_tokens_per_second": 12172.784074812087, "peak_allocated_bytes": 11312478720}

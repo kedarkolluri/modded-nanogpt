@@ -1,0 +1,15 @@
+{"config": {"precision": "fp4-native-sr", "pack_backend": "triton", "steps": 100, "layers": 12, "width": 768, "heads": 6, "batch": 4, "sequence": 256, "seed": 42, "eval_every": 50, "eval_batches": 8, "data": "data", "output": "results/fused/b4-fp4-native-sr.jsonl"}, "parameters": 123568128, "torch": "2.14.0+cu130", "gpu": "NVIDIA GB10", "native_low_precision_gemm": true, "source_sha256": {"train.py": "3642c41ec8e46af7bffdf1ceb41b781dbc3347984f30faf32bde5b6a3cc7fbc7", "native.py": "bcd4e21c6563dd4c1774d08dee79255c834441755c95e04afb0ed698dac2ff6d", "triton_pack.py": "1872b9a9058e7266b83c66b2d7a9ad4f698936288170ded962cc772e4ce44b74", "precision.py": "f21bcfca89a17a3fc19a00a43705978a9ed8e037b202917776ef02339864dd87", "record_model.py": "572734c9d2fbd4cd73880b33c09f0e857747cc655ccaa9a3bf55c524dcfa7c74"}}
+{"step": 0, "val_loss": 15.978562355041504, "train_seconds": 0.0}
+{"step": 1, "train_loss": 16.014385223388672, "step_seconds": 2.0069077769876458}
+{"step": 11, "train_loss": 8.687751770019531, "step_seconds": 0.12443300400627777}
+{"step": 21, "train_loss": 7.290943145751953, "step_seconds": 0.12234301399439573}
+{"step": 31, "train_loss": 7.58622407913208, "step_seconds": 0.11948924697935581}
+{"step": 41, "train_loss": 8.107843399047852, "step_seconds": 0.11927326198201627}
+{"step": 50, "val_loss": 8.22399616241455, "train_seconds": 7.908114816760644}
+{"step": 51, "train_loss": 8.245577812194824, "step_seconds": 0.12004683201666921}
+{"step": 61, "train_loss": 8.259515762329102, "step_seconds": 0.11972599901491776}
+{"step": 71, "train_loss": 8.513148307800293, "step_seconds": 0.11905406200094149}
+{"step": 81, "train_loss": 8.096158027648926, "step_seconds": 0.1208941779914312}
+{"step": 91, "train_loss": 7.542508125305176, "step_seconds": 0.12190936401020736}
+{"step": 100, "val_loss": 8.013370513916016, "train_seconds": 13.914526123960968}
+{"finished": true, "tokens": 102400, "train_seconds": 13.914526123960968, "warmup_excluded_steps": 5, "steady_tokens_per_second": 8530.040115288499, "peak_allocated_bytes": 2719905792}

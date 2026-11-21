@@ -1,0 +1,41 @@
+{
+  "passed_bitwise_parity": true,
+  "measurements": [
+    {
+      "tokens": 1024,
+      "stochastic": false,
+      "row_ms": 0.0294763323230048,
+      "tiled_ms": 0.015212832173953453
+    },
+    {
+      "tokens": 1024,
+      "stochastic": true,
+      "row_ms": 0.035530233678097524,
+      "tiled_ms": 0.02126513475862642
+    },
+    {
+      "tokens": 4096,
+      "stochastic": false,
+      "row_ms": 0.10463173190752666,
+      "tiled_ms": 0.023226199361185234
+    },
+    {
+      "tokens": 4096,
+      "stochastic": true,
+      "row_ms": 0.11108293353269498,
+      "tiled_ms": 0.05979853255363802
+    },
+    {
+      "tokens": 8192,
+      "stochastic": false,
+      "row_ms": 0.20938346666904786,
+      "tiled_ms": 0.0438918670018514
+    },
+    {
+      "tokens": 8192,
+      "stochastic": true,
+      "row_ms": 1.9995318997340898,
+      "tiled_ms": 0.10849146638065577
+    }
+  ]
+}

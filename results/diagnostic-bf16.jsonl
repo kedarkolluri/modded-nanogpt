@@ -1,0 +1,17 @@
+{"config": {"precision": "bf16", "steps": 100, "layers": 6, "width": 384, "heads": 6, "batch": 4, "sequence": 256, "seed": 42, "eval_every": 25, "eval_batches": 4, "data": "data", "output": "results/diagnostic-bf16.jsonl"}, "parameters": 29933568, "torch": "2.14.0+cu130", "gpu": "NVIDIA GB10", "native_low_precision_gemm": false}
+{"step": 0, "val_loss": 11.845571517944336, "train_seconds": 0.0}
+{"step": 1, "train_loss": 11.879805564880371, "step_seconds": 2.8425401939894073}
+{"step": 11, "train_loss": 8.275720596313477, "step_seconds": 0.03225300199119374}
+{"step": 21, "train_loss": 7.274186611175537, "step_seconds": 0.03150287101743743}
+{"step": 25, "val_loss": 8.243614196777344, "train_seconds": 3.6281785368919373}
+{"step": 31, "train_loss": 7.488312721252441, "step_seconds": 0.031663097033742815}
+{"step": 41, "train_loss": 7.853121280670166, "step_seconds": 0.0322529369732365}
+{"step": 50, "val_loss": 7.903624057769775, "train_seconds": 4.433310170948971}
+{"step": 51, "train_loss": 7.918221473693848, "step_seconds": 0.03129621496191248}
+{"step": 61, "train_loss": 7.982990264892578, "step_seconds": 0.03191016899654642}
+{"step": 71, "train_loss": 8.149697303771973, "step_seconds": 0.03201116103446111}
+{"step": 75, "val_loss": 7.767083644866943, "train_seconds": 5.229803990980145}
+{"step": 81, "train_loss": 7.91295051574707, "step_seconds": 0.0323268580250442}
+{"step": 91, "train_loss": 7.202373027801514, "step_seconds": 0.033008651982527226}
+{"step": 100, "val_loss": 7.665672302246094, "train_seconds": 6.031172172981314}
+{"finished": true, "tokens": 102400, "train_seconds": 6.031172172981314, "warmup_excluded_steps": 5, "steady_tokens_per_second": 31937.959348318214, "peak_allocated_bytes": 1220794368}
