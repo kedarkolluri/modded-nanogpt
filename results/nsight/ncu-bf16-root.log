@@ -1,0 +1,20 @@
+==PROF== Connected to process 2893898 (/usr/bin/python3.12)
+/home/kedar/projects/lawzero-reproduction/.venv/lib/python3.12/site-packages/torch/autograd/graph.py:1072: UserWarning: Attempting to run cuBLAS, but there was no current CUDA context! Attempting to set the primary context... (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/cuda/CublasHandlePool.cpp:410.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+==PROF== Profiling "vectorized_elementwise_kernel" - 0: 0%....50%....100% - 10 passes
+==PROF== Profiling "vectorized_elementwise_kernel" - 1: 0%....50%....100% - 10 passes
+==PROF== Profiling "Kernel2" - 2: 0%....50%....100% - 10 passes
+==PROF== Profiling "_relu_square" - 3: 0%....50%....100% - 10 passes
+==PROF== Profiling "vectorized_elementwise_kernel" - 4: 0%....50%....100% - 10 passes
+==PROF== Profiling "nvjet_sm121_tst_mma_128x208x6..." - 5: 0%....50%....100% - 10 passes
+==PROF== Profiling "nvjet_sm121_tst_mma_128x208x3..." - 6: 0%....50%....100% - 10 passes
+==PROF== Profiling "nvjet_sm121_tst_mma_128x208x6..." - 7: 0%....50%....100% - 10 passes
+==PROF== Profiling "unrolled_elementwise_kernel" - 8: 0%....50%....100% - 10 passes
+==PROF== Profiling "_relu_square_grad" - 9: 0%....50%....100% - 10 passes
+==PROF== Profiling "nvjet_sm121_tst_mma_128x208x3..." - 10: 0%....50%....100% - 10 passes
+==PROF== Profiling "nvjet_sm121_tst_mma_128x208x6..." - 11: 0%....50%....100% - 10 passes
+==PROF== Profiling "unrolled_elementwise_kernel" - 12: 0%....50%....100% - 10 passes
+==PROF== Profiling "unrolled_elementwise_kernel" - 13: 0%....50%....100% - 10 passes
+{'precision': 'bf16', 'shape': [32, 256, 768], 'finite': True}
+==PROF== Disconnected from process 2893898
+==PROF== Report: /home/kedar/projects/inklings2-mini/results/nsight/bf16-mlp.ncu-rep

@@ -51,7 +51,7 @@ class StepProfiler:
                 with torch.profiler.record_function('native/' + _name):
                     return _fn(*args, **kwargs)
             setattr(native, name, wrapped)
-        if any(type(module).__name__ == 'FusedActivationMLP' for module in model.modules()):
+        if any(type(module).__name__ in ('FusedActivationMLP', 'FusedBF16ActivationMLP') for module in model.modules()):
             import activation
             for name in ('pack_activation', 'activation_backward'):
                 original = getattr(activation, name)
@@ -99,3 +99,28 @@ class StepProfiler:
         summary['trace_analysis'] = analyze_trace(str(trace)+'.gz', self.steps)
         (self.directory / 'summary.json').write_text(json.dumps(summary, indent=2)+'\n')
         trace.unlink()
+
+
+class NsightCapture:
+    """Bound external Nsight capture to warmed-up steps; no Kineto profiler."""
+    def __init__(self, start=20, steps=3):
+        self.start, self.steps = start, steps
+        self.active = False
+
+    def before_step(self, step, model):
+        if step == self.start:
+            torch.cuda.cudart().cudaProfilerStart()
+            self.active = True
+
+    def scope(self, name):
+        return torch.cuda.nvtx.range(name) if self.active else nullcontext()
+
+    def after_step(self, step):
+        if self.active and step + 1 == self.start + self.steps:
+            self.finish()
+
+    def finish(self):
+        if self.active:
+            torch.cuda.synchronize()
+            torch.cuda.cudart().cudaProfilerStop()
+            self.active = False

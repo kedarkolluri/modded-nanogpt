@@ -148,3 +148,34 @@ Set `FP4_EPILOGUE=triton` when invoking the comparison/profile scripts to test t
 optimized path. `spark/check_epilogue.py` checks exact forward and gradient parity.
 
 Latest three-way results and profiles: [MXFP8 comparison](results/mxfp8/REPORT.md).
+
+## ReLU-square and MXFP8 activation-packing fusion
+
+Use `--fuse-activation` with `--precision mxfp8-native-sr`,
+`--pack-backend triton-tiled` and `--tail-precision mxfp8`. The second MLP
+projection now receives the first projection's BF16 preactivation directly.
+One Triton kernel applies ReLU-square, rounds the square to BF16 to preserve
+the original computation, performs 1x32 block scaling, and writes MXFP8 values,
+scales and reconstructed values for backward. Separate ReLU and square buffers
+are removed. The backward pointwise derivative is fused as well; backward
+MXFP8 gradient packing remains separate.
+
+The same flag on `--precision bf16` enables a BF16 control with fused ReLU-square
+and the same fused derivative. This measures the generic activation-fusion
+benefit separately from the MXFP8 activation-packing benefit. Attention, the
+head, optimizer, data and model parameters retain their existing behavior.
+
+```sh
+$PY spark/check_activation.py
+$PY spark/check_bf16_activation.py
+PYTHON=$PY RUN_DIR=results/my-activation-comparison spark/run_activation_comparison.sh
+```
+
+The comparison runs each of four modes twice at batch 32 for 100 steps, reversing
+the order in the second round. Use fresh output directories. Performance claims
+must distinguish the original BF16 baseline from the fused BF16 control.
+
+Measured results, correctness checks, and profiles: [activation fusion report](results/activation/REPORT.md).
+
+Nsight Systems training traces and Nsight Compute kernel counters:
+[Nsight report](results/nsight/REPORT.md). Reproduce with `spark/run_nsight.sh`.

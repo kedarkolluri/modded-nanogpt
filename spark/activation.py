@@ -86,4 +86,41 @@ def replace_activation_mlps(model):
                 raise ValueError('Both MLP projections must use MXFP8')
             block.mlp = FusedActivationMLP(block.mlp)
             count += 1
+        elif isinstance(block.mlp.c_fc, nn.Linear) and isinstance(block.mlp.c_proj, nn.Linear):
+            block.mlp = FusedBF16ActivationMLP(block.mlp)
+            count += 1
     return count
+
+
+@triton.jit
+def _relu_square(Z, H, N: tl.constexpr, BLOCK: tl.constexpr):
+    i = tl.program_id(0) * BLOCK + tl.arange(0, BLOCK)
+    valid = i < N
+    z = tl.load(Z+i, valid, 0).to(tl.float32)
+    positive = tl.maximum(z, 0.)
+    tl.store(H+i, (positive*positive).to(tl.bfloat16), valid)
+
+
+class BF16ReluSquareFn(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, z):
+        if z.dtype != torch.bfloat16:
+            raise ValueError('Fused activation expects BF16 GEMM output')
+        out = torch.empty_like(z)
+        _relu_square[(triton.cdiv(z.numel(), 1024),)](
+            z, out, z.numel(), 1024, enable_fp_fusion=False)
+        ctx.save_for_backward(z)
+        return out
+
+    @staticmethod
+    def backward(ctx, grad):
+        return activation_backward(ctx.saved_tensors[0], grad)
+
+
+class FusedBF16ActivationMLP(nn.Module):
+    def __init__(self, mlp):
+        super().__init__()
+        self.c_fc, self.c_proj = mlp.c_fc, mlp.c_proj
+
+    def forward(self, x):
+        return self.c_proj(BF16ReluSquareFn.apply(self.c_fc(x)))

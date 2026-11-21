@@ -1,0 +1,15 @@
+ID,kernel,duration_us,memory_throughput_pct,sm_throughput_pct,tensor_active_pct,achieved_occupancy_pct
+0,"void at::vectorized_elementwise_kernel<4, at::bfloat16_copy_kernel_cuda(at::TensorIteratorBase &)::[lambda(float) (instance 1)], std::array<char *, 2>, 0>(int, T2, T3)",157.408000,12.180713,1.516631,0.000000,88.187124
+1,"void at::vectorized_elementwise_kernel<4, at::bfloat16_copy_kernel_cuda(at::TensorIteratorBase &)::[lambda(float) (instance 1)], std::array<char *, 2>, 0>(int, T2, T3)",45.984000,15.688238,1.950060,0.000000,85.565631
+2,void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x256_32x3_tn_align8>(T1::Params),633.120000,43.144839,58.562881,58.562881,16.688418
+3,_relu_square,459.808000,12.822593,1.667052,0.000000,87.732326
+4,"void at::vectorized_elementwise_kernel<4, at::bfloat16_copy_kernel_cuda(at::TensorIteratorBase &)::[lambda(float) (instance 1)], std::array<char *, 2>, 0>(int, T2, T3)",48.832000,14.773874,1.834617,0.000000,78.783472
+5,nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_TNNN,526.816000,50.314162,71.216125,71.216125,18.948163
+6,nvjet_sm121_tst_mma_128x208x32_4_32x104x32_tmaAB_bz_NTNN,524.128000,52.310632,76.353072,76.353072,17.509718
+7,nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_NNNN,630.048000,48.699091,59.411088,59.411088,14.875352
+8,"void at::unrolled_elementwise_kernel<at::direct_copy_kernel_cuda(at::TensorIteratorBase &)::[lambda() (instance 3)]::operator ()() const::[lambda() (instance 7)]::operator ()() const::[lambda(float) (instance 1)], std::array<char *, 2>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, memory::LoadWithCast<1>, memory::StoreWithCast<1>>(int, T1, T2, T4, T5, T6, T7)",40.864000,28.515943,23.018166,0.000000,87.085228
+9,_relu_square_grad,674.016000,11.351223,2.018484,0.000000,91.878806
+10,nvjet_sm121_tst_mma_128x208x32_4_32x104x32_tmaAB_bz_NTNN,517.952000,49.787870,72.745687,72.745687,14.896426
+11,nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_NNNN,536.832000,49.414354,70.137202,70.137202,14.479307
+12,"void at::unrolled_elementwise_kernel<at::direct_copy_kernel_cuda(at::TensorIteratorBase &)::[lambda() (instance 3)]::operator ()() const::[lambda() (instance 7)]::operator ()() const::[lambda(float) (instance 1)], std::array<char *, 2>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, memory::LoadWithCast<1>, memory::StoreWithCast<1>>(int, T1, T2, T4, T5, T6, T7)",40.288000,29.018030,23.357191,0.000000,87.569375
+13,"void at::unrolled_elementwise_kernel<at::direct_copy_kernel_cuda(at::TensorIteratorBase &)::[lambda() (instance 3)]::operator ()() const::[lambda() (instance 7)]::operator ()() const::[lambda(float) (instance 1)], std::array<char *, 2>, 4, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, memory::LoadWithCast<1>, memory::StoreWithCast<1>>(int, T1, T2, T4, T5, T6, T7)",191.840000,16.179612,13.068877,0.000000,102.219158

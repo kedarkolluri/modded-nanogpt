@@ -1,0 +1,9 @@
+Range,Style,Total Proj Time (ns),Total Range Time (ns),Range Instances,Proj Avg (ns),Proj Med (ns),Proj Min (ns),Proj Max (ns),Proj StdDev (ns),Total GPU Ops,Avg GPU Ops,Avg Range Lvl,Avg Num Child
+:phase/forward,PushPop,327506624,35458816,3,109168874.7,109173952.0,108365952,109966720,800396.1,1608,536.0,0.0,0.0
+:phase/optimizer,PushPop,186385600,857986320,3,62128533.3,62292544.0,61455456,62637600,607898.6,6954,2318.0,0.0,2.0
+:optimizer/muon,PushPop,171515200,855838608,3,57171733.3,57334496.0,56608832,57571872,501727.3,6948,2316.0,1.0,0.0
+:optimizer/adamw,PushPop,14865856,2073120,3,4955285.3,4956256.0,4845280,5064320,109523.2,6,2.0,1.0,0.0
+CCCL:cub::DeviceRadixSort,PushPop,91456,1865344,3,30485.3,29792.0,29568,32096,1399.4,24,8.0,0.0,0.0
+CCCL:cub::DeviceSelect::UniqueByKey,PushPop,27648,1140784,3,9216.0,9184.0,9184,9280,55.4,6,2.0,0.0,0.0
+CCCL:cub::DeviceScan::ExclusiveScan,PushPop,21568,717312,3,7189.3,7136.0,7136,7296,92.4,6,2.0,0.0,0.0
+:phase/backward,PushPop,2592,156955424,3,864.0,864.0,832,896,32.0,3,1.0,0.0,0.0

@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from record_model import GPT, GPTConfig, Muon
 from precision import replace_mlps
-from profile_tools import StepProfiler
+from profile_tools import StepProfiler, NsightCapture
 
 
 def tokens(path):
@@ -41,6 +41,7 @@ def main():
     p.add_argument('--eval-every', type=int, default=25)
     p.add_argument('--eval-batches', type=int, default=8)
     p.add_argument('--data', type=Path, default=Path('data'))
+    p.add_argument('--nsight', action='store_true', help='CUDA profiler API capture with NVTX phase ranges')
     p.add_argument('--profile-dir', type=Path)
     p.add_argument('--profile-start', type=int, default=20)
     p.add_argument('--profile-steps', type=int, default=3)
@@ -48,11 +49,15 @@ def main():
     args = p.parse_args()
     if args.batch * args.sequence % 32 or args.width % 32:
         p.error('batch*sequence and width must be divisible by 32')
-    if args.profile_dir and (args.profile_start < 5 or args.profile_steps < 1 or args.profile_start + args.profile_steps > args.steps):
+    if (args.profile_dir or args.nsight) and (args.profile_start < 5 or args.profile_steps < 1 or args.profile_start + args.profile_steps > args.steps):
         p.error('Profile must begin after warmup and finish within the run')
-    if args.fuse_activation and (not args.precision.startswith('mxfp8-native') or args.pack_backend == 'eager'):
-        p.error('Activation fusion requires native MXFP8 and a Triton packing backend')
-    profiler = StepProfiler(args.profile_dir, args.profile_start, args.profile_steps)
+    if args.fuse_activation and not (args.precision == 'bf16' or
+            (args.precision.startswith('mxfp8-native') and args.pack_backend != 'eager')):
+        p.error('Activation fusion supports BF16 or native MXFP8 with Triton packing')
+    if args.nsight and args.profile_dir:
+        p.error('Use Nsight and PyTorch profiling in separate runs')
+    profiler = (NsightCapture(args.profile_start, args.profile_steps) if args.nsight else
+                StepProfiler(args.profile_dir, args.profile_start, args.profile_steps))
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
     train = tokens(args.data / 'fineweb_train_000001.bin')
