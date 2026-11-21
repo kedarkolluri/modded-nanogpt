@@ -42,7 +42,45 @@ def _kernel(A,W,Y,AD,WD,M:tl.constexpr,N:tl.constexpr,K:tl.constexpr,
     tl.store(Y+rm[:,None]*N+rn[None,:],acc,(rm[:,None]<M)&(rn[None,:]<N))
 
 
-def quantized_mm(a,w,bm=32,bn=64,bk=128,warps=4,stages=2,return_kernel=False):
+@triton.jit
+def _load_quant(A,W,AD,WD,rm,rn,block,im,jn,
+                M:tl.constexpr,N:tl.constexpr,K:tl.constexpr,
+                BM:tl.constexpr,BN:tl.constexpr,BK:tl.constexpr):
+    kk=block*BK+tl.arange(0,BK)
+    av=tl.load(A+rm[:,None]*K+kk[None,:],(rm[:,None]<M)&(kk[None,:]<K),0.)
+    wv=tl.load(W+rn[:,None]*K+kk[None,:],(rn[:,None]<N)&(kk[None,:]<K),0.)
+    aq,sa,ad=_quant(av,BM,BK)
+    wq,sw,wd=_quant(wv,BN,BK)
+    if jn == 0:
+        tl.store(AD+rm[:,None]*K+kk[None,:],ad,(rm[:,None]<M)&(kk[None,:]<K))
+    if im == 0:
+        tl.store(WD+rn[:,None]*K+kk[None,:],wd,(rn[:,None]<N)&(kk[None,:]<K))
+    return aq,sa,wq,sw
+
+
+@triton.jit
+def _buffered_kernel(A,W,Y,AD,WD,M:tl.constexpr,N:tl.constexpr,K:tl.constexpr,
+                     BM:tl.constexpr,BN:tl.constexpr,BK:tl.constexpr,
+                     LOOP_STAGES:tl.constexpr):
+    im=tl.program_id(0)
+    jn=tl.program_id(1)
+    rm=im*BM+tl.arange(0,BM)
+    rn=jn*BN+tl.arange(0,BN)
+    acc=tl.full((BM,BN),0,tl.float32)
+    # Prologue fills current quantized operand buffers. Loop-carried values
+    # keep current and next tiles distinct; inspect lowering rather than
+    # assuming source order proves hardware concurrency.
+    aq,sa,wq,sw=_load_quant(A,W,AD,WD,rm,rn,0,im,jn,M,N,K,BM,BN,BK)
+    for block in tl.range(1,tl.cdiv(K,BK),num_stages=LOOP_STAGES):
+        nq,ns,nw,nws=_load_quant(A,W,AD,WD,rm,rn,block,im,jn,M,N,K,BM,BN,BK)
+        acc=tl.dot_scaled(aq,sa,'e4m3',tl.trans(wq),sw,'e4m3',acc)
+        aq,sa,wq,sw=nq,ns,nw,nws
+    # Drain the final buffered tile, including a masked K tail.
+    acc=tl.dot_scaled(aq,sa,'e4m3',tl.trans(wq),sw,'e4m3',acc)
+    tl.store(Y+rm[:,None]*N+rn[None,:],acc,(rm[:,None]<M)&(rn[None,:]<N))
+
+
+def quantized_mm(a,w,bm=32,bn=64,bk=128,warps=4,stages=2,return_kernel=False,buffered=False,loop_stages=1):
     m,k=a.shape
     n=w.shape[0]
     if k%32 or not a.is_contiguous() or not w.is_contiguous():
@@ -50,8 +88,13 @@ def quantized_mm(a,w,bm=32,bn=64,bk=128,warps=4,stages=2,return_kernel=False):
     y=torch.empty((m,n),device=a.device,dtype=torch.bfloat16)
     ad=torch.empty_like(a,dtype=torch.bfloat16)
     wd=torch.empty_like(w,dtype=torch.bfloat16)
-    kernel=_kernel[(triton.cdiv(m,bm),triton.cdiv(n,bn))](a,w,y,ad,wd,m,n,k,bm,bn,bk,
-        num_warps=warps,num_stages=stages,enable_fp_fusion=False)
+    grid=(triton.cdiv(m,bm),triton.cdiv(n,bn))
+    if buffered:
+        kernel=_buffered_kernel[grid](a,w,y,ad,wd,m,n,k,bm,bn,bk,loop_stages,
+            num_warps=warps,num_stages=stages,enable_fp_fusion=False)
+    else:
+        kernel=_kernel[grid](a,w,y,ad,wd,m,n,k,bm,bn,bk,
+            num_warps=warps,num_stages=stages,enable_fp_fusion=False)
     return (y,ad,wd,kernel) if return_kernel else (y,ad,wd)
 
 from torch import nn
@@ -61,9 +104,12 @@ from activation import activation_backward, pack_activation
 
 class PipelinedMLPFn(torch.autograd.Function):
     @staticmethod
-    def forward(ctx,x,w1,w2,stochastic):
+    def forward(ctx,x,w1,w2,stochastic,buffered):
         shape=x.shape
-        z,ax,bw=quantized_mm(x.reshape(-1,shape[-1]),w1)
+        if buffered:
+            z,ax,bw=quantized_mm(x.reshape(-1,shape[-1]),w1,bm=32,bn=64,bk=32,stages=1,buffered=True)
+        else:
+            z,ax,bw=quantized_mm(x.reshape(-1,shape[-1]),w1)
         hq,hs,hx=pack_activation(z)
         cq,sc,cw=native.fp8_pack(w2,False,return_dequant=True)
         y=torch._scaled_mm(hq,cq.T,hs,sc,out_dtype=torch.bfloat16)
@@ -80,20 +126,21 @@ class PipelinedMLPFn(torch.autograd.Function):
         dz=activation_backward(z,dh)
         dx=native.mx_mm(dz,w.T,ctx.stochastic)
         dw=native.mx_mm(dz.T,x.T,ctx.stochastic)
-        return dx.reshape(ctx.shape),dw,dv,None
+        return dx.reshape(ctx.shape),dw,dv,None,None
 
 
 class PipelinedMLP(nn.Module):
-    def __init__(self,mlp):
+    def __init__(self,mlp,buffered=False):
         super().__init__()
         self.c_fc,self.c_proj=mlp.c_fc,mlp.c_proj
         self.stochastic=mlp.c_fc.stochastic
+        self.buffered=buffered
 
     def forward(self,x):
-        return PipelinedMLPFn.apply(x,self.c_fc.weight,self.c_proj.weight,self.stochastic)
+        return PipelinedMLPFn.apply(x,self.c_fc.weight,self.c_proj.weight,self.stochastic,self.buffered)
 
 
-def replace_mlps(model):
+def replace_mlps(model,buffered=False):
     for block in model.transformer.h:
         if getattr(block.mlp.c_fc,'forward_format',None)=='mxfp8':
-            block.mlp=PipelinedMLP(block.mlp)
+            block.mlp=PipelinedMLP(block.mlp,buffered=buffered)

@@ -262,3 +262,8 @@ overlap. Run `spark/check_pipelined_mxfp8.py`,
 `spark/bench_pipelined_mxfp8.py`, or `spark/run_operand_pipeline_comparison.sh`.
 See [operand-loop results](results/pipelined-mxfp8/REPORT.md) and
 [epilogue results](results/gemm-epilogue/REPORT.md).
+
+An explicit quantized lookahead variant is available with
+`--pipeline-mxfp8 --buffered-mxfp8`. It has verified loop-carried operand buffers
+and static instruction interleaving, but shows no useful speedup in the tested
+shapes. See [buffered kernel measurements and schedule evidence](results/buffered-mxfp8/REPORT.md).

@@ -1,5 +1,5 @@
 """Whole-MLP gradient, RNG and fullgraph parity for operand-loop quantization."""
-import copy,json,torch,native
+import copy,json,torch,native,sys
 from activation import FusedActivationMLP
 from pipelined_mxfp8 import PipelinedMLP
 from record_model import MLP,GPTConfig
@@ -11,7 +11,7 @@ for name in ('c_fc','c_proj'):
     layer.weight.data.normal_(0,.03)
     setattr(mlp,name,native.NativeLinear(layer,True,'mxfp8'))
 old = FusedActivationMLP(copy.deepcopy(mlp))
-new = PipelinedMLP(copy.deepcopy(mlp))
+new = PipelinedMLP(copy.deepcopy(mlp),buffered='--buffered' in sys.argv)
 assert list(dict(old.named_parameters())) == list(dict(new.named_parameters()))
 x = torch.randn(2,64,256,device='cuda',requires_grad=True)
 g = torch.randn_like(x,dtype=torch.bfloat16)
