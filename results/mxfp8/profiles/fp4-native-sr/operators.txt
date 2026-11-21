@@ -1,0 +1,56 @@
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                          phase/forward         0.00%       0.000us         0.00%       0.000us       0.000us     521.671ms        34.78%     521.671ms     173.890ms             3  
+                                            aten::copy_         0.21%       4.280ms         2.79%      57.590ms      42.978us     329.748ms        21.99%     329.748ms     246.081us          1340  
+                                               aten::mm         1.16%      24.024ms        11.08%     228.670ms      87.916us     192.070ms        12.81%     192.070ms      73.845us          2601  
+                                              aten::mul         0.26%       5.269ms         1.34%      27.551ms      35.874us     186.687ms        12.45%     186.687ms     243.082us           768  
+                               Optimizer.step#Muon.step         0.00%       0.000us         0.00%       0.000us       0.000us     181.280ms        12.09%     181.280ms      60.427ms             3  
+void at::native::unrolled_elementwise_kernel<at::nat...         0.00%       0.000us         0.00%       0.000us       0.000us     143.673ms         9.58%     143.673ms     245.595us           585  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us     143.346ms         9.56%     143.346ms     250.167us           573  
+## Call CompiledFxGraph fvw4x3vk3y5ewcgynvoy2ichx7jg...         0.00%       0.000us         0.00%       0.000us       0.000us     109.850ms         7.32%     109.850ms     610.280us           180  
+                       aten::_log_softmax_backward_data         0.00%      70.896us         0.04%     817.587us     272.529us      90.867ms         6.06%      90.867ms      30.289ms             3  
+void at::native::(anonymous namespace)::cunn_SoftMax...         0.00%       0.000us         0.00%       0.000us       0.000us      90.867ms         6.06%      90.867ms      30.289ms             3  
+                                             aten::add_         0.16%       3.266ms         7.63%     157.358ms     197.935us      87.443ms         5.83%      87.443ms     109.991us           795  
+                                        native/fp8_pack         0.00%       0.000us         0.00%       0.000us       0.000us      77.837ms         5.19%      77.837ms     249.476us           312  
+void at::native::elementwise_kernel<128, 2, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us      70.304ms         4.69%      70.304ms     585.868us           120  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      69.630ms         4.64%      69.630ms     120.259us           579  
+                                       aten::_scaled_mm         0.60%      12.343ms         1.33%      27.342ms     126.583us      68.477ms         4.57%      68.477ms     317.024us           216  
+                                 NativeLinearFnBackward         0.10%       2.024ms         3.30%      68.054ms       1.134ms      55.605ms         3.71%      89.918ms       1.499ms            60  
+                         aten::_fused_rms_norm_backward         0.04%     764.960us         0.63%      12.913ms      87.843us      51.832ms         3.46%      51.832ms     352.596us           147  
+void at::native::(anonymous namespace)::layer_norm_g...         0.00%       0.000us         0.00%       0.000us       0.000us      51.832ms         3.46%      51.832ms     352.596us           147  
+                                     aten::_log_softmax         0.00%      81.904us         0.01%     139.264us      46.421us      49.880ms         3.33%      49.880ms      16.627ms             3  
+void at::native::(anonymous namespace)::cunn_SoftMax...         0.00%       0.000us         0.00%       0.000us       0.000us      49.880ms         3.33%      49.880ms      16.627ms             3  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      49.706ms         3.31%      49.706ms       1.381ms            36  
+                                         _fp8_transpose         0.00%       0.000us         0.00%       0.000us       0.000us      47.466ms         3.16%      47.466ms     219.751us           216  
+cutlass3x_sm120_bstensorop_s16832gemm_block_scaled_u...         0.00%       0.000us         0.00%       0.000us       0.000us      44.690ms         2.98%      44.690ms     286.477us           156  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      42.765ms         2.85%      42.765ms     169.703us           252  
+                                           native/mx_mm         0.00%       0.000us         0.00%       0.000us       0.000us      41.013ms         2.73%      41.013ms     284.810us           144  
+                        aten::_flash_attention_backward         0.03%     713.633us         0.55%      11.268ms     312.994us      37.348ms         2.49%      37.348ms       1.037ms            36  
+void cutlass::Kernel2<cutlass_80_tensorop_bf16_s1681...         0.00%       0.000us         0.00%       0.000us       0.000us      36.345ms         2.42%      36.345ms      53.136us           684  
+                                            aten::fill_         0.34%       6.934ms         0.81%      16.678ms     109.004us      35.750ms         2.38%      35.750ms     233.658us           153  
+## Call CompiledFxGraph ff5inqkfky2omoi5xrhofg7vkozj...         0.00%       0.000us         0.00%       0.000us       0.000us      34.883ms         2.33%      34.883ms     968.974us            36  
+                                            aten::addmm         0.56%      11.495ms         5.24%     108.106ms     100.098us      34.585ms         2.31%      34.585ms      32.023us          1080  
+void at::native::elementwise_kernel<128, 4, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us      33.531ms         2.24%      33.531ms      58.213us           576  
+                         Memcpy DtoD (Device -> Device)         0.00%       0.000us         0.00%       0.000us       0.000us      33.420ms         2.23%      33.420ms     928.344us            36  
+                                  aten::_fused_rms_norm         0.09%       1.762ms         0.20%       4.145ms      28.197us      33.398ms         2.23%      33.398ms     227.201us           147  
+void at::native::(anonymous namespace)::vectorized_l...         0.00%       0.000us         0.00%       0.000us       0.000us      33.398ms         2.23%      33.398ms     227.201us           147  
+                                              aten::pow         0.07%       1.413ms         0.27%       5.527ms      51.178us      33.145ms         2.21%     124.453ms       1.152ms           108  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      33.145ms         2.21%      33.145ms     920.688us            36  
+                                        native/fp4_pack         0.00%       0.000us         0.00%       0.000us       0.000us      32.983ms         2.20%      32.983ms     274.857us           120  
+                                         module/lm_head         0.00%       0.000us         0.00%       0.000us       0.000us      32.869ms         2.19%      32.869ms      10.956ms             3  
+                                         NativeLinearFn         0.12%       2.564ms         1.34%      27.664ms     461.074us      32.691ms         2.18%     151.929ms       2.532ms            60  
+                                              aten::add         0.15%       3.197ms         1.04%      21.548ms      49.879us      30.521ms         2.03%      30.521ms      70.651us           432  
+void at::native::unrolled_elementwise_kernel<at::nat...         0.00%       0.000us         0.00%       0.000us       0.000us      30.229ms         2.02%      30.229ms     104.961us           288  
+nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_...         0.00%       0.000us         0.00%       0.000us       0.000us      29.170ms         1.94%      29.170ms       9.723ms             3  
+                                                   _fp8         0.00%       0.000us         0.00%       0.000us       0.000us      28.995ms         1.93%      28.995ms     302.032us            96  
+                                                   _fp4         0.00%       0.000us         0.00%       0.000us       0.000us      28.931ms         1.93%      28.931ms     241.096us           120  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      28.660ms         1.91%      28.660ms       3.184ms             9  
+         triton_red_fused__to_copy_linalg_vector_norm_0         0.11%       2.176ms         0.72%      14.884ms      68.906us      25.325ms         1.69%      25.325ms     117.247us           216  
+         triton_red_fused__to_copy_linalg_vector_norm_0         0.00%       0.000us         0.00%       0.000us       0.000us      25.325ms         1.69%      25.325ms     117.247us           216  
+void cutlass::Kernel2<cutlass_80_tensorop_bf16_s1681...         0.00%       0.000us         0.00%       0.000us       0.000us      25.292ms         1.69%      25.292ms       8.431ms             3  
+                               aten::threshold_backward         0.02%     396.289us         0.07%       1.405ms      39.022us      24.491ms         1.63%      24.491ms     680.303us            36  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      24.491ms         1.63%      24.491ms     680.303us            36  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 2.063s
+Self CUDA time total: 1.500s

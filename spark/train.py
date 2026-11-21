@@ -27,6 +27,7 @@ def tokens(path):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--precision', choices=['bf16', 'fp4-reference-sr', 'fp4-reference-nearest', 'fp4-native-sr', 'fp4-native-nearest', 'mxfp8-native-sr', 'mxfp8-native-nearest'], default='bf16')
+    p.add_argument('--fp4-epilogue', choices=['eager', 'triton'], default='eager')
     p.add_argument('--tail-precision', choices=['bf16', 'mxfp8'], default='bf16')
     p.add_argument('--pack-backend', choices=['eager', 'triton', 'triton-tiled'], default='eager')
     p.add_argument('--steps', type=int, default=100)
@@ -58,8 +59,9 @@ def main():
         p.error('Not enough tokens for this run')
     model = GPT(GPTConfig(n_layer=args.layers, n_embd=args.width, n_head=args.heads)).cuda()
     if args.precision.startswith(('fp4-native', 'mxfp8-native')):
-        from native import replace_mlps as replace_native, set_pack_backend
+        from native import replace_mlps as replace_native, set_pack_backend, set_epilogue_backend
         set_pack_backend(args.pack_backend)
+        set_epilogue_backend(args.fp4_epilogue)
         replace_native(model, stochastic=args.precision.endswith('-sr'),
                        forward_format='mxfp8' if args.precision.startswith('mxfp8') else 'nvfp4',
                        tail_precision=args.tail_precision)
@@ -84,7 +86,7 @@ def main():
           'torch': torch.__version__, 'gpu': torch.cuda.get_device_name(),
           'native_low_precision_gemm': args.precision.startswith(('fp4-native', 'mxfp8-native')),
           'source_sha256': {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py')}})
+                            for name in ('train.py', 'native.py', 'triton_pack.py', 'triton_pack_tiled.py', 'precision.py', 'record_model.py', 'profile_tools.py', 'trace_analysis.py', 'epilogue.py')}})
     def batch(data, offset):
         z = torch.from_numpy(np.array(data[offset:offset+count+1], dtype=np.int64)).cuda()
         return z[:-1].view(args.batch, args.sequence), z[1:].view(args.batch, args.sequence)

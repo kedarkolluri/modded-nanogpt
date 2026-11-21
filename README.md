@@ -140,3 +140,11 @@ introduces overhead; use the separate unprofiled runs for throughput claims.
 
 Code/results snapshot before MXFP8: commit `67290e4`, tag `spark-fused-v1`.
 A Git recovery bundle is stored on Spark in `snapshots/`.
+
+The profile-guided FP4 epilogue optimization is selectable with
+`--fp4-epilogue triton`. It combines both outer-scale multiplies and the BF16
+conversion in one kernel. The default `eager` preserves the original comparison.
+Set `FP4_EPILOGUE=triton` when invoking the comparison/profile scripts to test the
+optimized path. `spark/check_epilogue.py` checks exact forward and gradient parity.
+
+Latest three-way results and profiles: [MXFP8 comparison](results/mxfp8/REPORT.md).

@@ -59,6 +59,10 @@ def fp8_pack(x, stochastic=True, return_dequant=False):
     return result
 
 
+def apply_outer(out, ao, bo):
+    return (out * ao * bo).to(torch.bfloat16)
+
+
 def mx_mm(a, bt, stochastic):
     aq, sa = fp8_pack(a, stochastic)
     bq, sb = fp8_pack(bt, stochastic)
@@ -73,7 +77,7 @@ class NativeLinearFn(torch.autograd.Function):
         bq, sb, bo, bw = fp4_pack(weight)
         # Apply per-token and per-tensor outer scales before casting the output.
         out = torch._scaled_mm(aq, bq.T, sa, sb, out_dtype=torch.float32)
-        out = (out * ao * bo).to(torch.bfloat16)
+        out = apply_outer(out, ao, bo)
         ctx.save_for_backward(ax, bw)
         ctx.shape, ctx.stochastic = shape, stochastic
         return out.reshape(*shape[:-1], weight.shape[0])
@@ -138,5 +142,17 @@ def set_pack_backend(backend):
         from triton_pack_tiled import fp4_pack, fp8_pack
     elif backend == 'eager':
         fp4_pack, fp8_pack = eager_fp4_pack, eager_fp8_pack
+    else:
+        raise ValueError(backend)
+
+
+eager_apply_outer = apply_outer
+
+def set_epilogue_backend(backend):
+    global apply_outer
+    if backend == 'triton':
+        from epilogue import apply_outer
+    elif backend == 'eager':
+        apply_outer = eager_apply_outer
     else:
         raise ValueError(backend)

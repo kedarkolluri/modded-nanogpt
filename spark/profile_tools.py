@@ -44,7 +44,7 @@ class StepProfiler:
                                    module.register_forward_hook(post, always_call=True)])
         # Patch only during profiling, keeping normal benchmark paths untouched.
         import native
-        for name in ('fp4_pack', 'fp8_pack', 'mx_mm'):
+        for name in ('fp4_pack', 'fp8_pack', 'mx_mm', 'apply_outer'):
             original = getattr(native, name)
             self.originals[name] = original
             def wrapped(*args, _fn=original, _name=name, **kwargs):
