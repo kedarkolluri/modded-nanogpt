@@ -1,0 +1,201 @@
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi64ELi2ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi64ELi2ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 192 registers, used 1 barriers, 2144 bytes smem
+ptxas info    : Compile time = 56.719 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi64ELi2ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi64ELi2ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 168 registers, used 1 barriers, 2144 bytes smem
+ptxas info    : Compile time = 55.933 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi64ELi2ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi64ELi2ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 140 registers, used 3 barriers, 2144 bytes smem
+ptxas info    : Compile time = 54.361 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi64ELi2ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi64ELi2ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 186 registers, used 3 barriers, 2144 bytes smem
+ptxas info    : Compile time = 57.723 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi64ELi2ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi64ELi2ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 126 registers, used 1 barriers, 2144 bytes smem
+ptxas info    : Compile time = 28.177 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi64ELi2ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi64ELi2ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 124 registers, used 1 barriers, 2144 bytes smem
+ptxas info    : Compile time = 28.640 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi64ELi2ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi64ELi2ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 130 registers, used 3 barriers, 2144 bytes smem
+ptxas info    : Compile time = 29.432 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi64ELi2ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi64ELi2ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 130 registers, used 3 barriers, 2144 bytes smem
+ptxas info    : Compile time = 29.213 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi32ELi2ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi32ELi2ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 127 registers, used 1 barriers, 1088 bytes smem
+ptxas info    : Compile time = 35.646 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi32ELi2ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi32ELi2ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 1 barriers, 1088 bytes smem
+ptxas info    : Compile time = 36.930 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi32ELi2ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi32ELi2ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 3 barriers, 1088 bytes smem
+ptxas info    : Compile time = 36.513 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi32ELi2ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi32ELi2ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 3 barriers, 1088 bytes smem
+ptxas info    : Compile time = 37.952 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi32ELi2ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi32ELi2ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 1 barriers, 1088 bytes smem
+ptxas info    : Compile time = 23.094 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi32ELi2ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi32ELi2ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 1088 bytes smem
+ptxas info    : Compile time = 23.868 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi32ELi2ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi32ELi2ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 3 barriers, 1088 bytes smem
+ptxas info    : Compile time = 25.094 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi32ELi2ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi32ELi2ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 3 barriers, 1088 bytes smem
+ptxas info    : Compile time = 25.337 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi64ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi64ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 182 registers, used 1 barriers, 2144 bytes smem
+ptxas info    : Compile time = 55.645 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi64ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi64ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 168 registers, used 1 barriers, 2144 bytes smem
+ptxas info    : Compile time = 55.628 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi64ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi64ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 138 registers, used 3 barriers, 2144 bytes smem
+ptxas info    : Compile time = 54.628 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi64ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi64ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 184 registers, used 3 barriers, 2144 bytes smem
+ptxas info    : Compile time = 56.309 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi64ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi64ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 126 registers, used 1 barriers, 2144 bytes smem
+ptxas info    : Compile time = 28.133 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi64ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi64ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 124 registers, used 1 barriers, 2144 bytes smem
+ptxas info    : Compile time = 27.918 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi64ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi64ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 130 registers, used 3 barriers, 2144 bytes smem
+ptxas info    : Compile time = 28.175 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi64ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi64ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 130 registers, used 3 barriers, 2144 bytes smem
+ptxas info    : Compile time = 28.252 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi128ELi64ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi128ELi64ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 1 barriers, 2144 bytes smem
+ptxas info    : Compile time = 19.371 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi128ELi64ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi128ELi64ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 1 barriers, 2144 bytes smem
+ptxas info    : Compile time = 19.519 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi128ELi64ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi128ELi64ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 3 barriers, 2144 bytes smem
+ptxas info    : Compile time = 20.098 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi128ELi64ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi128ELi64ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 3 barriers, 2144 bytes smem
+ptxas info    : Compile time = 20.446 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi32ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi32ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 127 registers, used 1 barriers, 1088 bytes smem
+ptxas info    : Compile time = 32.234 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi32ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi32ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 1 barriers, 1088 bytes smem
+ptxas info    : Compile time = 33.804 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi32ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi32ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 3 barriers, 1088 bytes smem
+ptxas info    : Compile time = 33.453 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi512ELi32ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi512ELi32ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 128 registers, used 3 barriers, 1088 bytes smem
+ptxas info    : Compile time = 34.860 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi32ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi32ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 1 barriers, 1088 bytes smem
+ptxas info    : Compile time = 20.506 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi32ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi32ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 1 barriers, 1088 bytes smem
+ptxas info    : Compile time = 20.844 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi32ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi32ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 3 barriers, 1088 bytes smem
+ptxas info    : Compile time = 21.984 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi256ELi32ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi256ELi32ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 3 barriers, 1088 bytes smem
+ptxas info    : Compile time = 22.029 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi128ELi32ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi128ELi32ELi4ELi4ELb0ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 1088 bytes smem
+ptxas info    : Compile time = 14.132 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi128ELi32ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi128ELi32ELi4ELi4ELb1ELb0EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 1 barriers, 1088 bytes smem
+ptxas info    : Compile time = 14.457 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi128ELi32ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi128ELi32ELi4ELi4ELb0ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 3 barriers, 1088 bytes smem
+ptxas info    : Compile time = 15.786 ms
+ptxas info    : Compiling entry function '_Z8pc_mxfp8ILi128ELi32ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm' for 'sm_121a'
+ptxas info    : Function properties for _Z8pc_mxfp8ILi128ELi32ELi4ELi4ELb1ELb1EEvPKfPKhS3_P13__nv_bfloat16S5_iiiPm
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 3 barriers, 1088 bytes smem
+ptxas info    : Compile time = 15.767 ms

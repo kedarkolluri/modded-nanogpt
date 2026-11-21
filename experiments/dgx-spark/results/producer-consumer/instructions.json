@@ -1,0 +1,6 @@
+{
+  "native_qmma_static_count_across_all_instantiations": 624,
+  "synchronization_static_count_across_all_instantiations": 560,
+  "sample_native_mma": "/*2a40*/                   QMMA.SF.16832.F32.E4M3.E4M3.E8 R80, R20, R130, R80, R10, R9, URZ ;     /* 0x70900a821450747a */",
+  "sample_synchronization": "/*0180*/                   SYNCS.EXCH.64 URZ, [UR8], UR4 ;                                        /* 0x0000000408ff75b2 */"
+}

@@ -16,3 +16,6 @@ results/buffered-mxfp8/*.ttgir
 results/buffered-mxfp8/*.llir
 results/buffered-mxfp8/*.cubin
 results/buffered-mxfp8/*.sass
+spark/cuda/*.so
+results/producer-consumer/*.sass
+results/producer-consumer/*.ptx

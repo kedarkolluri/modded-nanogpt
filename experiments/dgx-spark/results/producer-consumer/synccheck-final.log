@@ -1,0 +1,34 @@
+========= COMPUTE-SANITIZER
+{"shape": [1, 128, 32], "config": 0, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [1, 128, 32], "config": 0, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [1, 128, 32], "config": 4, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [1, 128, 32], "config": 4, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [1, 128, 32], "config": 6, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [1, 128, 32], "config": 6, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [1, 128, 32], "config": 9, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [1, 128, 32], "config": 9, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [17, 144, 96], "config": 0, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [17, 144, 96], "config": 0, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [17, 144, 96], "config": 4, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [17, 144, 96], "config": 4, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [17, 144, 96], "config": 6, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [17, 144, 96], "config": 6, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [17, 144, 96], "config": 9, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [17, 144, 96], "config": 9, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [32, 256, 256], "config": 0, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [32, 256, 256], "config": 0, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [32, 256, 256], "config": 4, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [32, 256, 256], "config": 4, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [32, 256, 256], "config": 6, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [32, 256, 256], "config": 6, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [32, 256, 256], "config": 9, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [32, 256, 256], "config": 9, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [256, 512, 768], "config": 0, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [256, 512, 768], "config": 0, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [256, 512, 768], "config": 4, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [256, 512, 768], "config": 4, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [256, 512, 768], "config": 6, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [256, 512, 768], "config": 6, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [256, 512, 768], "config": 9, "serial": true, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+{"shape": [256, 512, 768], "config": 9, "serial": false, "relative_l2": 0.0, "max_abs": 0.0, "exact": true}
+========= ERROR SUMMARY: 0 errors

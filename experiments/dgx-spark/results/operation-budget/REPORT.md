@@ -123,6 +123,7 @@ BF16 control in its own report. No full-training run exists for explicit bufferi
 | Both operands inside GEMM loop | 292.15 | 28,041 | 1 × 20 steps; short performance check |
 | Explicit lookahead buffering | Not measured | Not measured | Kernel tests only |
 | Weight reuse | 233.28 | 35,117 | 1 × 100 steps; latest comparison |
+| Dedicated CUDA producer/consumer | 258.31 | 31,714 | 1 × 100 steps; separate producer/consumer report |
 
 Original eager FP4/NVFP4 and earlier batch-size sweeps are separate historical
 recipes; see `results/mxfp8/three-way/summary.md` and `results/REPORT.md`. They
@@ -139,3 +140,9 @@ The analyzer joins CUDA kernels to runtime launch correlation IDs, then assigns
 serial training phase windows across threads. This handles PyTorch backward
 worker-thread launches that default NVTX GPU projection misses. Raw binary
 Nsight captures and SQLite databases remain on Spark and are ignored by Git.
+
+A subsequent [explicit producer/consumer experiment](../producer-consumer/REPORT.md)
+verified concurrent worker roles with shared buffers and passing sanitizers.
+Its 100-step throughput is 31,714 tokens/s. That variant is not included in the
+three matched Nsight operation budgets above; its evidence and timings are
+reported separately.
